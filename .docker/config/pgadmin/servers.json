@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Innovation Hub",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "root",
+      "SSLMode": "prefer"
+    }
+  }
+}
