@@ -1,9 +1,18 @@
 import '../styles/globals.css'
-import type { AppProps } from 'next/app'
+import type {AppProps} from 'next/app'
 import {RecoilRoot} from "recoil";
+import {WorkshopContextProvider} from "../frontend/context/WorkshopContext";
+import {appWithTranslation} from "next-i18next";
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return <RecoilRoot><Component {...pageProps} /></RecoilRoot>
+
+function BestAppInTheWorld({Component, pageProps}: AppProps) {
+    return (
+        <RecoilRoot>
+            <WorkshopContextProvider>
+                <Component {...pageProps} />
+            </WorkshopContextProvider>
+        </RecoilRoot>
+    )
 }
 
-export default MyApp
+export default appWithTranslation(BestAppInTheWorld)

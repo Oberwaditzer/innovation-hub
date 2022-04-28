@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import * as http from 'http';
 import next, { NextApiHandler } from 'next';
 import * as socketio from 'socket.io';
+import {OnConnection} from "./backend/SockerServer";
 
 const port: number = parseInt(process.env.PORT || '3001', 10);
 const dev: boolean = process.env.NODE_ENV !== 'production';
@@ -14,24 +15,20 @@ nextApp.prepare().then(async() => {
     const io: socketio.Server = new socketio.Server();
     io.attach(server);
 
-    app.get('/hello', async (_: Request, res: Response) => {
-        res.send('Hello World')
-    });
+    // app.get('/hello', async (_: Request, res: Response) => {
+    //     res.send('Hello World')
+    // });
 
-    io.on('connection', (socket: socketio.Socket) => {
-        console.log('connection');
-        socket.emit('status', 'Hello from Socket.io');
+    // Create IO Listener
+    io.on('connection', OnConnection);
 
-        socket.on('disconnect', () => {
-            console.log('client disconnected');
-        })
-
-        socket.on('message', (args) => {
-            console.log('g0t message')
-            console.log(args);
-           socket.emit('message', args);
-        });
-    });
+    io.use((socket, next) => {
+        const token = socket.handshake.auth.token;
+        if(token !== "test") {
+            next(new Error('not authorized'));
+        }
+        next();
+    })
 
     app.all('*', (req: any, res: any) => nextHandler(req, res));
 
