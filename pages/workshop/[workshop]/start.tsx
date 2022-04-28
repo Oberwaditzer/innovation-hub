@@ -17,9 +17,9 @@ type StartProps = {
 
 const Start = ( {workshop} : StartProps ) => {
     const context = useContext(WorkshopContext);
-    useEffect(()=> {
+    useEffect(() => {
         context.connect();
-    }, [])
+    }, [context])
     return (
         <div className={'flex basis-auto flex-1 justify-center items-center flex-grow h-screen w-screen'}>
             <div className={'flex basis-auto flex-initial flex-col justify-center items-center bg-blue-50 p-10 rounded-3xl'}>
