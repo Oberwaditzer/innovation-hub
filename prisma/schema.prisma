@@ -15,63 +15,90 @@ generator typegraphql {
 }
 
 model User {
-    id              String              @id @default(cuid())
-    createdAt       DateTime            @default(now())
-    updatedAt       DateTime            @updatedAt
-    username        String              @unique
-    email           String              @unique
-    emailConfirmed  Boolean             @default(false)
-    firstName       String
-    lastName        String
-    teams           UsersOnTeams[]
-    workshops       UsersOnWorkshops[]
+  id                String             @id @default(cuid())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  username          String             @unique
+  email             String             @unique
+  emailConfirmed    Boolean            @default(false)
+  firstName         String
+  lastName          String
+  profilePictureURL String
+  teams             UsersOnTeams[]
+  workshops         UsersOnWorkshops[]
 }
 
 model Team {
-    id         String          @id @default(cuid())
-    createdAt  DateTime        @default(now())
-    updatedAt  DateTime        @updatedAt
-    title      String          @unique
-    users      UsersOnTeams[]
-    workshops  Workshop[]
+  id        String         @id @default(cuid())
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  title     String         @unique
+  users     UsersOnTeams[]
+  workshops Workshop[]
+}
+
+model WorkshopTemplate {
+  id        String         @id @default(cuid())
+  title     String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  public    Boolean
+  steps     WorkshopStep[]
+  Workshop  Workshop[]
+}
+
+model WorkshopStep {
+  id                 String            @id @default(cuid())
+  title              String
+  description        String?
+  type               String
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  durationSeconds    Int
+  step               Int
+  data               Json              @default("{}")
+  WorkshopTemplate   WorkshopTemplate? @relation(fields: [workshopTemplateId], references: [id])
+  workshopTemplateId String?
 }
 
 model Workshop {
-    id         String              @id @default(cuid())
-    createdAt  DateTime            @default(now())
-    updatedAt  DateTime            @updatedAt
-    type       String
-    title      String
-    status     WorkshopStatus      @default(CREATED)
-    data       Json                @default("{}")
-    step       Int                 @default(1)
-    teams      Team[]
-    users      UsersOnWorkshops[]
+  id                 String             @id @default(cuid())
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  type               String
+  title              String
+  status             WorkshopStatus     @default(CREATED)
+  data               Json               @default("{}")
+  step               Int                @default(1)
+  teams              Team[]
+  users              UsersOnWorkshops[]
+  template           WorkshopTemplate?  @relation(fields: [workshopTemplateId], references: [id])
+  workshopTemplateId String?
 }
 
 enum WorkshopStatus {
-    CREATED
-    STARTED
-    STOPPED
-    FINISHED
+  CREATED
+  STARTED
+  STOPPED
+  FINISHED
 }
 
 model UsersOnTeams {
-    user    User     @relation(fields: [userId], references: [id])
-    userId  String
-    team    Team     @relation(fields: [teamId], references: [id])
-    teamId  String
-    admin   Boolean
+  user   User    @relation(fields: [userId], references: [id])
+  userId String
+  team   Team    @relation(fields: [teamId], references: [id])
+  teamId String
+  admin  Boolean
 
-    @@id([userId, teamId])
+  @@id([userId, teamId])
 }
 
 model UsersOnWorkshops {
-    user        User      @relation(fields: [userId], references: [id])
-    userId      String
-    workshop    Workshop  @relation(fields: [workshopId], references: [id])
-    workshopId  String
-    admin       Boolean
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  workshop   Workshop @relation(fields: [workshopId], references: [id])
+  workshopId String
+  admin      Boolean
 
-    @@id([userId, workshopId])
+  @@id([userId, workshopId])
 }
