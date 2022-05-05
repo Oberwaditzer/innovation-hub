@@ -26,6 +26,7 @@ model User {
   profilePictureURL String
   teams             UsersOnTeams[]
   workshops         UsersOnWorkshops[]
+  WorkshopTemplate  WorkshopTemplate[]
 }
 
 model Team {
@@ -38,16 +39,18 @@ model Team {
 }
 
 model WorkshopTemplate {
-  id        String         @id @default(cuid())
+  id        String                 @id @default(cuid())
   title     String
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
   public    Boolean
-  steps     WorkshopStep[]
+  steps     WorkshopTemplateStep[]
   Workshop  Workshop[]
+  createdBy User                   @relation(fields: [userId], references: [id])
+  userId    String
 }
 
-model WorkshopStep {
+model WorkshopTemplateStep {
   id                 String            @id @default(cuid())
   title              String
   description        String?
@@ -62,18 +65,40 @@ model WorkshopStep {
 }
 
 model Workshop {
-  id                 String             @id @default(cuid())
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
+  id                 String               @id @default(cuid())
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
   type               String
   title              String
-  status             WorkshopStatus     @default(CREATED)
-  data               Json               @default("{}")
-  step               Int                @default(1)
+  status             WorkshopStatus       @default(CREATED)
+  data               Json                 @default("{}")
+  step               Int                  @default(1)
+  privacyLevel       WorkshopPrivacyLevel @default(FULL_VISIBLE)
   teams              Team[]
   users              UsersOnWorkshops[]
-  template           WorkshopTemplate?  @relation(fields: [workshopTemplateId], references: [id])
+  template           WorkshopTemplate?    @relation(fields: [workshopTemplateId], references: [id])
+  steps              WorkshopStep[]
   workshopTemplateId String?
+}
+
+model WorkshopStep {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  type            String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  durationSeconds Int
+  step            Int
+  data            Json     @default("{}")
+  workshop        Workshop @relation(fields: [workshopId], references: [id])
+  workshopId      String
+}
+
+enum WorkshopPrivacyLevel {
+  FULL_VISIBLE
+  VISIBLE_WITHOUT_USER_INFORMATION
+  PRIVATE
 }
 
 enum WorkshopStatus {

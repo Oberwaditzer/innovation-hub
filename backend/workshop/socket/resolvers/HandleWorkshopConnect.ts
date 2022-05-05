@@ -1,5 +1,9 @@
 import * as socketio from 'socket.io';
-import { getUsersOnline } from '../../RedisAdapter';
+import {
+   getModuleUserData,
+   getUsersOnline,
+   getWorkshopStep,
+} from '../../RedisAdapter';
 import {
    WorkshopInitialDataServerTypes,
    WorkshopUser,
@@ -7,11 +11,16 @@ import {
 import { WorkshopSocketEvents } from '../../../../definitions/WorkshopSocketEvents';
 import Prisma from '../../../singleton/Prisma';
 import { SocketServerHandlerType } from '../SockerServer';
+import { JsonObject } from 'type-fest';
+import { WorkshopSocketUserAdd } from './HandleWorkshopUserAdd';
+import { WorkshopSocketModuleNext } from './HandleModuleNext';
 
 type WorkshopSocketInitialData = {
    name: string;
    users: WorkshopUser[];
    template: any;
+   moduleData?: WorkshopSocketUserAdd[];
+   currentStep?: number;
 };
 
 const HandleWorkshopConnect = async ({
@@ -19,6 +28,7 @@ const HandleWorkshopConnect = async ({
    workshopId,
 }: SocketServerHandlerType<null>) => {
    const usersOnline = await getUsersOnline(workshopId);
+   const currentStep = await getWorkshopStep(workshopId);
    const workshop = await Prisma.getInstance().workshop.findUnique({
       where: {
          id: workshopId,
@@ -32,10 +42,9 @@ const HandleWorkshopConnect = async ({
          template: {
             include: {
                steps: {
-                  orderBy: {
-                     step: 'asc',
+                  where: {
+                     step: currentStep ?? 0,
                   },
-                  take: 1,
                },
             },
          },
@@ -49,9 +58,11 @@ const HandleWorkshopConnect = async ({
       })),
       name: workshop!.title,
       template: workshop!.template,
+      moduleData: currentStep
+         ? (await getModuleUserData(workshopId))!
+         : undefined,
+      currentStep: currentStep || undefined,
    };
-   console.log(initialData);
-   console.log(usersOnline);
    socket.emit(WorkshopSocketEvents.WorkshopConnect, initialData);
 };
 

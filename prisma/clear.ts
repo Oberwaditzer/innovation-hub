@@ -15,10 +15,6 @@ async function main() {
       where: {},
    });
 
-   await prisma.user.deleteMany({
-      where: {},
-   });
-
    await prisma.workshop.deleteMany({
       where: {},
    });
@@ -27,7 +23,15 @@ async function main() {
       where: {},
    });
 
+   await prisma.workshopTemplateStep.deleteMany({
+      where: {},
+   });
+
    await prisma.workshopStep.deleteMany({
+      where: {},
+   });
+
+   await prisma.user.deleteMany({
       where: {},
    });
 }

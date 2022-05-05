@@ -8,11 +8,18 @@ import { TextField } from '../../../input/TextField';
 import { WorkshopContext } from '../../../../context/WorkshopContext';
 import { BrainstormingResults } from './Results';
 import { WorkshopSocketEvents } from '../../../../../definitions/WorkshopSocketEvents';
+import { userState } from '../../../../state/atoms/user';
+import { WorkshopSocketUserAdd } from '../../../../../backend/workshop/socket/resolvers/HandleWorkshopUserAdd';
+
+type WorkshopSocketUserAddBrainstorming = Omit<WorkshopSocketUserAdd, 'id'> & {
+   data: {
+      text: string;
+   };
+};
 
 const BrainstormingModule = () => {
    const module = useRecoilValue(workshopModule);
-   const [moduleUserData, setWorkshopModuleData] =
-      useRecoilState(moduleUserDataState);
+   const user = useRecoilValue(userState);
    const { sendData } = useContext(WorkshopContext);
    if (!module) {
       return null;
@@ -31,18 +38,12 @@ const BrainstormingModule = () => {
             clearOnSubmit={true}
             placeholder={'Type your thoughts'}
             onSubmit={(userInput) => {
-               const output = {
+               const output: WorkshopSocketUserAddBrainstorming = {
                   data: {
                      text: userInput,
                   },
-                  userId: 'cl2kqu29z0027k0h59rgnv7bk',
-                  private: false,
+                  userId: user.userId,
                };
-               // ToDo
-               setWorkshopModuleData((data) => [
-                  ...data,
-                  { ...output, isSelf: true },
-               ]);
                sendData(WorkshopSocketEvents.WorkshopUserAdd, output);
             }}
          />
@@ -53,5 +54,7 @@ const BrainstormingModule = () => {
       </div>
    );
 };
+
+export type { WorkshopSocketUserAddBrainstorming };
 
 export { BrainstormingModule };

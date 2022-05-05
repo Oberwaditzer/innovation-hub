@@ -104,19 +104,21 @@ async function main() {
       data: {
          public: true,
          title: 'Retrospective',
+         userId: leon.id,
       },
    });
 
-   const workshopStepBrainstorming = await prisma.workshopStep.create({
-      data: {
-         title: 'Brainstorming',
-         step: 0,
-         durationSeconds: 300,
-         type: 'brainstorming',
-         data: {},
-         workshopTemplateId: workshopTemplate.id,
-      },
-   });
+   const workshopTemplateStepBrainstorming =
+      await prisma.workshopTemplateStep.create({
+         data: {
+            title: 'Brainstorming',
+            step: 0,
+            durationSeconds: 300,
+            type: 'brainstorming',
+            data: {},
+            workshopTemplateId: workshopTemplate.id,
+         },
+      });
 
    await prisma.workshop
       .upsert({

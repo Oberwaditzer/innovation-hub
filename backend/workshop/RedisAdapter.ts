@@ -1,4 +1,6 @@
 import { createClient } from 'redis';
+import { JsonObject } from 'type-fest';
+import { WorkshopSocketUserAdd } from './socket/resolvers/HandleWorkshopUserAdd';
 
 const client = createClient();
 
@@ -30,10 +32,46 @@ const incrementWorkshopStep = async (workshop: string) => {
    return await client.incr(`${workshop}:step`);
 };
 
+const getModuleUserData = async (workshop: string) => {
+   const data = await client.lRange(`${workshop}:module:data`, 0, -1);
+   if (data) {
+      try {
+         return data
+            .map((e) => JSON.parse(e) as WorkshopSocketUserAdd)
+            .reverse();
+      } catch (_) {}
+   }
+   return null;
+};
+
+const addModuleUserData = async (
+   workshop: string,
+   data: WorkshopSocketUserAdd,
+) => {
+   return await client.lPush(`${workshop}:module:data`, JSON.stringify(data));
+};
+
+const removeModuleUserData = async (workshop: string, id: string) => {
+   const currentData = await getModuleUserData(workshop);
+   if (!currentData) return;
+   const data = currentData.find((e) => e.id === id);
+   if (data) {
+      await client.lRem(`${workshop}:module:data`, 0, JSON.stringify(data));
+   }
+};
+
+const clearModuleUserData = async (workshop: string) => {
+   return await client.del(`${workshop}:module:data`);
+};
+
 export {
    addUserOnline,
+   removeModuleUserData,
    removeUserOnline,
    getUsersOnline,
    getWorkshopStep,
    incrementWorkshopStep,
+   getModuleUserData,
+   addModuleUserData,
+   clearModuleUserData,
 };

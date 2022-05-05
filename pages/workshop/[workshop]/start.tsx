@@ -15,6 +15,7 @@ import {
 import { WorkshopUser } from '../../../definitions/WorkshopDataTypes';
 import { Avatar } from '../../../frontend/components/avatars/Avatar';
 import { UserItem } from '../../../frontend/components/workshop/components/UserItem';
+import { getWorkshopStep } from '../../../backend/workshop/RedisAdapter';
 
 type StartProps = {
    translations: {
@@ -81,6 +82,17 @@ export async function getServerSideProps(
    context: GetServerSidePropsContextWithLocale,
 ) {
    const workshopId = context.query.workshop;
+   if (workshopId) {
+      const currentStep = await getWorkshopStep(workshopId);
+      if (currentStep) {
+         return {
+            redirect: {
+               permanent: false,
+               destination: `/workshop/${workshopId}/${currentStep}`,
+            },
+         };
+      }
+   }
    const translations = (await serverSideTranslations(context.locale))
       ._nextI18Next.initialI18nStore[context.locale].common;
    // if (workshopId !== 'id') {

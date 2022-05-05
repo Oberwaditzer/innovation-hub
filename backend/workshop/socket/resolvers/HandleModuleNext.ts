@@ -1,6 +1,6 @@
 import { WorkshopSocketEvents } from '../../../../definitions/WorkshopSocketEvents';
 import { SocketServerHandlerType } from '../SockerServer';
-import { getWorkshopStep } from '../../RedisAdapter';
+import { getWorkshopStep, incrementWorkshopStep } from '../../RedisAdapter';
 import Prisma from '../../../singleton/Prisma';
 import { WorkshopStep } from '@prisma/client';
 
@@ -20,7 +20,7 @@ const HandleModuleNext = async ({
             include: {
                steps: {
                   where: {
-                     step: currentStep ?? 0,
+                     step: currentStep ?? 1,
                   },
                },
             },
@@ -28,7 +28,7 @@ const HandleModuleNext = async ({
       },
    });
    const workshopStep = workshop!.template!.steps[0];
-   console.log(workshopStep);
+   await incrementWorkshopStep(workshopId);
    socket
       .in(workshopId)
       .emit(WorkshopSocketEvents.WorkshopModuleNext, workshopStep);

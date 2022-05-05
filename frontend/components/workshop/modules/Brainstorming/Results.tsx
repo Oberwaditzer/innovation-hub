@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Masonry from 'react-masonry-css';
 import { useRecoilValue } from 'recoil';
 import {
@@ -6,11 +6,13 @@ import {
    workshopUsers,
 } from '../../../../state/atoms/workshop';
 import { Avatar } from '../../../avatars/Avatar';
-import { User } from '@prisma/client';
-import { WorkshopUserInputTypes } from '../../../../../definitions/WorkshopUserInputTypes';
 import { Button } from '../../../button/Button';
 import { MdRemove } from 'react-icons/md';
 import { WorkshopUser } from '../../../../../definitions/WorkshopDataTypes';
+import { WorkshopSocketUserAdd } from '../../../../../backend/workshop/socket/resolvers/HandleWorkshopUserAdd';
+import { WorkshopContext } from '../../../../context/WorkshopContext';
+import { WorkshopSocketEvents } from '../../../../../definitions/WorkshopSocketEvents';
+import { userState } from '../../../../state/atoms/user';
 
 const BrainstormingResults = () => {
    const users = useRecoilValue(workshopUsers);
@@ -21,9 +23,9 @@ const BrainstormingResults = () => {
          className={'flex w-3/4 overflow-scroll pt-3'}
          columnClassName={'w-auto pl-5 pr-5'}
       >
-         {moduleUserData.map((e, i) => (
+         {moduleUserData.map((e) => (
             <ResultElement
-               key={i.toString()}
+               key={e.id}
                data={e}
                user={users?.find((u) => u.id === e.userId)}
             />
@@ -33,24 +35,36 @@ const BrainstormingResults = () => {
 };
 
 type ResultElementProps = {
-   key: string;
-   data: WorkshopUserInputTypes;
+   data: WorkshopSocketUserAdd;
    user?: WorkshopUser;
 };
 
-const ResultElement = ({ key, user, data }: ResultElementProps) => {
+const ResultElement = ({ user, data }: ResultElementProps) => {
+   const { sendData } = useContext(WorkshopContext);
+   const currentUser = useRecoilValue(userState);
+
+   const removeData = () => {
+      sendData(WorkshopSocketEvents.WorkshopUserRemove, { id: data.id });
+   };
+
    return (
       <div
-         key={key}
          className={
             'bg-gray-100 p-4 flex flex-initial flex-row items-center mb-3 rounded-2xl relative w-full'
          }
       >
-         <Button className={'absolute -top-3 -right-3 p-1'} rounded={true}>
-            <MdRemove className={'h-5 w-5'} />
-         </Button>
+         {(currentUser.isFacilitator || currentUser.userId) === data.userId && (
+            <Button
+               className={'absolute -top-3 -right-3 p-1'}
+               rounded={true}
+               onClick={removeData}
+            >
+               <MdRemove className={'h-5 w-5'} />
+            </Button>
+         )}
+
          <Avatar src={user?.profilePictureURL} />
-         <p className={'ml-3 break-all'}>{data.data?.text?.toString()}</p>
+         <p className={'ml-3 break-all'}>{data.data?.text?.toString() || ''}</p>
       </div>
    );
 };

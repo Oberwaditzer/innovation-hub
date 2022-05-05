@@ -7,6 +7,7 @@ import HandleWorkshopUserAdd from './resolvers/HandleWorkshopUserAdd';
 import HandleUserDisconnect from './resolvers/HandleUserDisconnect';
 import { hasUserAccessToWorkshop } from '../UserAccess';
 import { ExtendedError } from 'socket.io/dist/namespace';
+import HandleWorkshopUserRemove from './resolvers/HandleWorkshopUserRemove';
 
 const OnConnection = async (socket: socketio.Socket, io: socketio.Server) => {
    const workshopId = socket.handshake.auth.workshopId;
@@ -27,6 +28,10 @@ const OnConnection = async (socket: socketio.Socket, io: socketio.Server) => {
 
    socket.on(WorkshopSocketEvents.WorkshopUserAdd, async (data) =>
       HandleWorkshopUserAdd({ socket, workshopId, userId, io, data }),
+   );
+
+   socket.on(WorkshopSocketEvents.WorkshopUserRemove, async (data) =>
+      HandleWorkshopUserRemove({ socket, workshopId, userId, io, data }),
    );
 
    socket.on('disconnect', async (data) =>

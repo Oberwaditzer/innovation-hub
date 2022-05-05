@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "postinstall": "prisma generate",
-    "dev": "ts-node server.ts",
+    "dev": "nodemon server.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "prettier": "prettier -c -w **/*.{ts,tsx}",
     "seed-database": "ts-node prisma/seed.ts",
-    "clear-database": "ts-node prisma/clear.ts"
+    "clear-database": "ts-node prisma/clear.ts",
+    "clear-redis": "ts-node backend/clear-redis.ts"
   },
   "dependencies": {
     "@prisma/client": "^3.12.0",
@@ -39,7 +40,8 @@
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1",
     "type-graphql": "^1.1.1",
-    "typegraphql-prisma": "^0.20.1"
+    "typegraphql-prisma": "^0.20.1",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",
@@ -51,6 +53,7 @@
     "@types/node": "17.0.25",
     "@types/react": "18.0.5",
     "@types/react-dom": "18.0.1",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.20.0",
     "@typescript-eslint/parser": "^5.20.0",
     "autoprefixer": "^10.4.5",
@@ -58,6 +61,7 @@
     "eslint": "8.13.0",
     "eslint-config-next": "12.1.5",
     "jest": "^27.5.1",
+    "nodemon": "^2.0.16",
     "postcss": "^8.4.12",
     "prettier": "^2.6.2",
     "prisma": "^3.12.0",

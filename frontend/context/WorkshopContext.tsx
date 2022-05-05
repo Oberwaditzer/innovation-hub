@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { WorkshopSocketEvents } from '../../definitions/WorkshopSocketEvents';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import {
    moduleUserDataState,
    workshopModule,
@@ -14,6 +14,8 @@ import { useRouter } from 'next/router';
 import { WorkshopSocketInitialData } from '../../backend/workshop/socket/resolvers/HandleWorkshopConnect';
 import { WorkshopSocketModuleNext } from '../../backend/workshop/socket/resolvers/HandleModuleNext';
 import { WorkshopSocketUserAdd } from '../../backend/workshop/socket/resolvers/HandleWorkshopUserAdd';
+import { userState } from '../state/atoms/user';
+import { WorkshopSocketUserRemove } from '../../backend/workshop/socket/resolvers/HandleWorkshopUserRemove';
 
 const useUpdateData = () => {
    const router = useRouter();
@@ -35,27 +37,39 @@ const useUpdateData = () => {
    const setWorkshopConnect = (data: WorkshopSocketInitialData) => {
       setWorkshopState(data);
       setUserOnlineState(data.users);
+      if (data.currentStep && data.moduleData) {
+         router.push(`/workshop/${router.query.workshop}/${data.currentStep}`);
+         updateModuleUserInputState((values) => [
+            ...values,
+            ...data.moduleData!,
+         ]);
+         setWorkshopModuleState(data.template!.steps[0]);
+      }
    };
 
    const setWorkshopModuleNext = (data: WorkshopSocketModuleNext) => {
-      let index = 1;
-      if (router.query.index) {
-         index = parseInt(router.query.index as string) + 1;
-      }
-      router.push(`/workshop/${router.query.workshop}/${index}`);
+      console.log(data);
+      router.push(`/workshop/${router.query.workshop}/${data.step}`);
       setWorkshopModuleState(data);
       updateModuleUserInputState([]);
    };
 
-   const setUpdateModuleUserInput = (data: WorkshopSocketUserAdd) => {
+   const setUpdateModuleUserAdd = (data: WorkshopSocketUserAdd) => {
       updateModuleUserInputState((values) => [...values, data]);
+   };
+
+   const setUpdateModuleUserRemove = (data: WorkshopSocketUserRemove) => {
+      updateModuleUserInputState((values) =>
+         values.filter((e) => e.id !== data.id),
+      );
    };
 
    return {
       setUserOnlineStatus,
       setWorkshopConnect,
       setWorkshopModuleNext,
-      setUpdateModuleUserInput,
+      setUpdateModuleUserAdd,
+      setUpdateModuleUserRemove,
    };
 };
 
@@ -68,27 +82,17 @@ const WorkshopContextProvider = ({
 }: WorkshopContextProviderProps) => {
    const socket = useRef<Socket>(io({ autoConnect: false }));
    const [connected, setConnected] = useState(false);
+   const user = useRecoilValue(userState);
+
+   const router = useRouter();
 
    const {
       setUserOnlineStatus,
       setWorkshopConnect,
       setWorkshopModuleNext,
-      setUpdateModuleUserInput,
+      setUpdateModuleUserAdd,
+      setUpdateModuleUserRemove,
    } = useUpdateData();
-
-   const router = useRouter();
-
-   // Needs to be cleaned after router changes
-   useEffect(() => {
-      if (!connected) return;
-      socket.current.on(
-         WorkshopSocketEvents.WorkshopModuleNext,
-         setWorkshopModuleNext,
-      );
-      return () => {
-         socket.current?.off(WorkshopSocketEvents.WorkshopModuleNext);
-      };
-   }, [connected, router.asPath, setWorkshopModuleNext]);
 
    const connect = () => {
       if (socket.current.connected) return;
@@ -96,8 +100,8 @@ const WorkshopContextProvider = ({
       console.info('Trying to connect to the server...');
 
       socket.current.auth = {
-         userId: 'cl2rqtu4a0025y3h5yoqydwss',
-         workshopId: 'ckzd563vz00023e6cyh70f1tt',
+         userId: user.userId,
+         workshopId: router.query.workshop,
       };
       socket.current?.connect();
 
@@ -106,6 +110,11 @@ const WorkshopContextProvider = ({
          socket.current.emit(WorkshopSocketEvents.WorkshopConnect, true);
          setConnected(true);
       });
+
+      socket.current.on(
+         WorkshopSocketEvents.WorkshopModuleNext,
+         setWorkshopModuleNext,
+      );
 
       socket.current.on(WorkshopSocketEvents.WorkshopUserOnline, (data) =>
          setUserOnlineStatus(data, true),
@@ -122,7 +131,12 @@ const WorkshopContextProvider = ({
 
       socket.current.on(
          WorkshopSocketEvents.WorkshopUserAdd,
-         setUpdateModuleUserInput,
+         setUpdateModuleUserAdd,
+      );
+
+      socket.current.on(
+         WorkshopSocketEvents.WorkshopUserRemove,
+         setUpdateModuleUserRemove,
       );
    };
 
