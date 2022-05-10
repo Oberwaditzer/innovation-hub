@@ -17,6 +17,8 @@ import { Avatar } from '../../../frontend/components/avatars/Avatar';
 import { UserItem } from '../../../frontend/components/workshop/components/UserItem';
 import { getWorkshopStep } from '../../../backend/workshop/RedisAdapter';
 import { useTimer } from '../../../frontend/hooks/useTimer';
+import { getSession, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { ParsedUrlQuery } from 'querystring';
 
 type StartProps = {
    translations: {
@@ -71,47 +73,52 @@ const Start = ({ translations, workshopId }: StartProps) => {
    );
 };
 
-type GetServerSidePropsContextWithLocale = GetServerSidePropsContext & {
+type GetServerSidePropsContextWithLocale = ParsedUrlQuery & {
    locale: string;
    query: {
       workshop?: string;
    };
 };
 
-export async function getServerSideProps(
-   context: GetServerSidePropsContextWithLocale,
-) {
-   const workshopId = context.query.workshop;
-   if (workshopId) {
-      const currentStep = await getWorkshopStep(workshopId);
-      if (currentStep) {
-         return {
-            redirect: {
-               permanent: false,
-               destination: `/workshop/${workshopId}/${currentStep}`,
-            },
-         };
+export const getServerSideProps = withPageAuthRequired<
+   any,
+   GetServerSidePropsContextWithLocale
+>({
+   returnTo: '/',
+   async getServerSideProps(context) {
+      console.log(context);
+      const workshopId = context.query.workshop as string;
+      if (workshopId) {
+         const currentStep = await getWorkshopStep(workshopId);
+         if (currentStep) {
+            return {
+               redirect: {
+                  permanent: false,
+                  destination: `/workshop/${workshopId}/${currentStep}`,
+               },
+            };
+         }
       }
-   }
-   const translations = (await serverSideTranslations(context.locale))
-      ._nextI18Next.initialI18nStore[context.locale].common;
-   // if (workshopId !== 'id') {
-   //     return {
-   //         redirect: {
-   //             destination: '/',
-   //             permanent: false
-   //         }
-   //     }
-   // }
-   return {
-      props: {
-         translations: {
-            ...translations,
+      const translations = (await serverSideTranslations(context.locale!))
+         ._nextI18Next.initialI18nStore[context.locale!].common;
+      // if (workshopId !== 'id') {
+      //     return {
+      //         redirect: {
+      //             destination: '/',
+      //             permanent: false
+      //         }
+      //     }
+      // }
+      return {
+         props: {
+            translations: {
+               ...translations,
+            },
+            workshopId: workshopId,
+            // Will be passed to the page component as props
          },
-         workshopId: workshopId,
-         // Will be passed to the page component as props
-      },
-   };
-}
+      };
+   },
+});
 
 export default Start;
