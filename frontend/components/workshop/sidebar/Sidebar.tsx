@@ -6,6 +6,7 @@ import { Button } from '../../button/Button';
 import { MdAdd, MdArrowForward, MdRemove, MdTimer } from 'react-icons/md';
 import { WorkshopContext } from '../../../context/WorkshopContext';
 import { WorkshopSocketEvents } from '../../../../definitions/WorkshopSocketEvents';
+import { SidebarTimer } from './timer/SidebarTimer';
 
 const WorkshopSidebar = () => {
    const [sidebarExpanded, setSidebarExpanded] = useRecoilState(
@@ -47,6 +48,7 @@ const WorkshopSidebar = () => {
 
 const WorkshopSidebarContent = () => {
    const context = useContext(WorkshopContext);
+   const expanded = useRecoilValue(workshopSidebarExpandedState);
 
    const goToNextScreen = () => {
       context.sendData(WorkshopSocketEvents.WorkshopModuleNext, {});
@@ -55,7 +57,15 @@ const WorkshopSidebarContent = () => {
    return (
       <div className={'h-full w-full flex flex-initial flex-col pt-32 p-7'}>
          <div className={'flex flex-auto flex-col'}>
-            <WorkshopSidebarIcon />
+            <WorkshopSidebarEntry
+               icon={<WorkshopSidebarIcon />}
+               iconSide={
+                  <>
+                     <p className={'text-xl ml-4'}>Time left</p>
+                     <SidebarTimer />
+                  </>
+               }
+            />
          </div>
          <Button
             className={'p-2 w-10 h-10'}
@@ -68,13 +78,36 @@ const WorkshopSidebarContent = () => {
    );
 };
 
-const WorkshopSidebarIcon = () => {
+type WorkshopSidebarEntryProps = {
+   icon: React.ReactNode;
+   iconSide: React.ReactNode;
+};
+
+const WorkshopSidebarEntry = ({
+   icon,
+   iconSide,
+}: WorkshopSidebarEntryProps) => {
    const sidebarExpanded = useRecoilValue(workshopSidebarExpandedState);
    return (
+      <div className={'flex flex-initial flex-col w-full'}>
+         <div className={'flex flex-initial flex-row items-center w-full'}>
+            {icon}
+            <div
+               className={classNames(
+                  'flex flex-initial flex-row justify-between flex-1',
+               )}
+            >
+               {iconSide}
+            </div>
+         </div>
+      </div>
+   );
+};
+
+const WorkshopSidebarIcon = () => {
+   return (
       <MdTimer
-         className={classNames(
-            'h-10 w-10 text-blue-600 transition-spacing duration-300',
-         )}
+         className={classNames('h-10 w-10 text-blue-600')}
          aria-hidden="true"
       />
    );

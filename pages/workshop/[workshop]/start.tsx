@@ -16,6 +16,7 @@ import { WorkshopUser } from '../../../definitions/WorkshopDataTypes';
 import { Avatar } from '../../../frontend/components/avatars/Avatar';
 import { UserItem } from '../../../frontend/components/workshop/components/UserItem';
 import { getWorkshopStep } from '../../../backend/workshop/RedisAdapter';
+import { useTimer } from '../../../frontend/hooks/useTimer';
 
 type StartProps = {
    translations: {
@@ -31,7 +32,6 @@ type StartProps = {
 
 const Start = ({ translations, workshopId }: StartProps) => {
    const context = useContext(WorkshopContext);
-   const router = useRouter();
    const onlineUsers = useRecoilValue(sortedWorkshopUsers);
    const workshop = useRecoilValue(workshopState);
 

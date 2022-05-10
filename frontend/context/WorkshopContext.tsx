@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { WorkshopSocketEvents } from '../../definitions/WorkshopSocketEvents';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
    moduleUserDataState,
    workshopModule,
@@ -16,6 +16,7 @@ import { WorkshopSocketModuleNext } from '../../backend/workshop/socket/resolver
 import { WorkshopSocketUserAdd } from '../../backend/workshop/socket/resolvers/HandleWorkshopUserAdd';
 import { userState } from '../state/atoms/user';
 import { WorkshopSocketUserRemove } from '../../backend/workshop/socket/resolvers/HandleWorkshopUserRemove';
+import { timerState } from '../state/atoms/timer';
 
 const useUpdateData = () => {
    const router = useRouter();
@@ -24,6 +25,7 @@ const useUpdateData = () => {
    const setWorkshopModuleState = useSetRecoilState(workshopModule);
    const updateModuleUserInputState = useSetRecoilState(moduleUserDataState);
    const setUserOnlineState = useSetRecoilState(workshopUsers);
+   const setTimerState = useSetRecoilState(timerState);
 
    const setUserOnlineStatus = (user: string, isOnline: boolean) => {
       setUserOnlineState((users) =>
@@ -48,10 +50,14 @@ const useUpdateData = () => {
    };
 
    const setWorkshopModuleNext = (data: WorkshopSocketModuleNext) => {
-      console.log(data);
       router.push(`/workshop/${router.query.workshop}/${data.step}`);
       setWorkshopModuleState(data);
       updateModuleUserInputState([]);
+      setTimerState({
+         isActive: true,
+         timeLeft: data.durationSeconds,
+         initialTime: data.durationSeconds,
+      });
    };
 
    const setUpdateModuleUserAdd = (data: WorkshopSocketUserAdd) => {

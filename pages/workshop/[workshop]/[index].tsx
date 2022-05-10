@@ -6,6 +6,7 @@ import { BrainstormingModule } from '../../../frontend/components/workshop/modul
 import { WorkshopTitle } from '../../../frontend/components/workshop/components/Title';
 import { WorkshopContext } from '../../../frontend/context/WorkshopContext';
 import { getWorkshopStep } from '../../../backend/workshop/RedisAdapter';
+import { useTimer } from '../../../frontend/hooks/useTimer';
 
 type WorkshopRendererProps = {
    type: string;
@@ -13,6 +14,7 @@ type WorkshopRendererProps = {
 
 const WorkshopRenderer = ({ type }: WorkshopRendererProps) => {
    const context = useContext(WorkshopContext);
+   useTimer();
    useEffect(() => {
       context.connect();
    }, [context]);
