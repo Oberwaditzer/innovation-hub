@@ -18,6 +18,8 @@ import { userState } from '../state/atoms/user';
 import { WorkshopSocketUserRemove } from '../../backend/workshop/socket/resolvers/HandleWorkshopUserRemove';
 import { timerState } from '../state/atoms/timer';
 import { useUser } from '@auth0/nextjs-auth0';
+import { WorkshopSocketModuleReview } from '../../backend/workshop/socket/resolvers/HandleModuleReview';
+import { reviewModeState } from '../state/atoms/reviewMode';
 
 const useUpdateData = () => {
    const router = useRouter();
@@ -27,6 +29,7 @@ const useUpdateData = () => {
    const updateModuleUserInputState = useSetRecoilState(moduleUserDataState);
    const setUserOnlineState = useSetRecoilState(workshopUsers);
    const setTimerState = useSetRecoilState(timerState);
+   const setReviewMode = useSetRecoilState(reviewModeState);
 
    const setUserOnlineStatus = (user: string, isOnline: boolean) => {
       setUserOnlineState((users) =>
@@ -47,6 +50,7 @@ const useUpdateData = () => {
             ...data.moduleData!,
          ]);
          setWorkshopModuleState(data.template!.steps[0]);
+         setReviewMode(data.isReview);
       }
    };
 
@@ -59,6 +63,16 @@ const useUpdateData = () => {
          timeLeft: data.durationSeconds,
          initialTime: data.durationSeconds,
       });
+      setReviewMode(false);
+   };
+
+   const setWorkshopModuleReview = (data: WorkshopSocketModuleReview) => {
+      setTimerState((value) => ({
+         ...value,
+         timeLeft: 0,
+         isActive: false,
+      }));
+      setReviewMode(data.inReview);
    };
 
    const setUpdateModuleUserAdd = (data: WorkshopSocketUserAdd) => {
@@ -77,6 +91,7 @@ const useUpdateData = () => {
       setWorkshopModuleNext,
       setUpdateModuleUserAdd,
       setUpdateModuleUserRemove,
+      setWorkshopModuleReview,
    };
 };
 
@@ -100,6 +115,7 @@ const WorkshopContextProvider = ({
       setWorkshopModuleNext,
       setUpdateModuleUserAdd,
       setUpdateModuleUserRemove,
+      setWorkshopModuleReview,
    } = useUpdateData();
 
    const connect = () => {
@@ -122,6 +138,11 @@ const WorkshopContextProvider = ({
       socket.current.on(
          WorkshopSocketEvents.WorkshopModuleNext,
          setWorkshopModuleNext,
+      );
+
+      socket.current.on(
+         WorkshopSocketEvents.WorkshopModuleReview,
+         setWorkshopModuleReview,
       );
 
       socket.current.on(WorkshopSocketEvents.WorkshopUserOnline, (data) =>

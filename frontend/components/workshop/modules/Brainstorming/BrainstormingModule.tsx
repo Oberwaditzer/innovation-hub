@@ -10,6 +10,7 @@ import { BrainstormingResults } from './Results';
 import { WorkshopSocketEvents } from '../../../../../definitions/WorkshopSocketEvents';
 import { userState } from '../../../../state/atoms/user';
 import { WorkshopSocketUserAdd } from '../../../../../backend/workshop/socket/resolvers/HandleWorkshopUserAdd';
+import { reviewModeState } from '../../../../state/atoms/reviewMode';
 
 type WorkshopSocketUserAddBrainstorming = Omit<WorkshopSocketUserAdd, 'id'> & {
    data: {
@@ -21,6 +22,7 @@ const BrainstormingModule = () => {
    const module = useRecoilValue(workshopModule);
    const user = useRecoilValue(userState);
    const { sendData } = useContext(WorkshopContext);
+   const isReview = useRecoilValue(reviewModeState);
    if (!module) {
       return null;
    }
@@ -33,20 +35,23 @@ const BrainstormingModule = () => {
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labo.
          </p>
-         <TextField
-            className={'mt-16'}
-            clearOnSubmit={true}
-            placeholder={'Type your thoughts'}
-            onSubmit={(userInput) => {
-               const output: WorkshopSocketUserAddBrainstorming = {
-                  data: {
-                     text: userInput,
-                  },
-                  userId: user.userId,
-               };
-               sendData(WorkshopSocketEvents.WorkshopUserAdd, output);
-            }}
-         />
+         {!isReview && (
+            <TextField
+               className={'mt-16'}
+               clearOnSubmit={true}
+               placeholder={'Type your thoughts'}
+               onSubmit={(userInput) => {
+                  const output: WorkshopSocketUserAddBrainstorming = {
+                     data: {
+                        text: userInput,
+                     },
+                     userId: user.userId,
+                  };
+                  sendData(WorkshopSocketEvents.WorkshopUserAdd, output);
+               }}
+            />
+         )}
+
          <div className={'flex w-full mt-16 justify-center mb-16'}>
             <div className="w-1/2 h-[1px] bg-gray-300" />
          </div>

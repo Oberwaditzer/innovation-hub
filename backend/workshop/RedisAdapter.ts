@@ -32,6 +32,18 @@ const incrementWorkshopStep = async (workshop: string) => {
    return await client.incr(`${workshop}:step`);
 };
 
+const setModuleReview = async (workshop: string, isReview: boolean) => {
+   return await client.set(`${workshop}:module:review`, isReview.toString());
+};
+
+const getModuleReview = async (workshop: string) => {
+   const value = await client.get(`${workshop}:module:review`);
+   if (value) {
+      return JSON.parse(value);
+   }
+   return false;
+};
+
 const getModuleUserData = async (workshop: string) => {
    const data = await client.lRange(`${workshop}:module:data`, 0, -1);
    if (data) {
@@ -74,4 +86,6 @@ export {
    getModuleUserData,
    addModuleUserData,
    clearModuleUserData,
+   setModuleReview,
+   getModuleReview,
 };

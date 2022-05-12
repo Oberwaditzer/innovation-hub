@@ -1,8 +1,10 @@
 import * as socketio from 'socket.io';
 import {
+   getModuleReview,
    getModuleUserData,
    getUsersOnline,
    getWorkshopStep,
+   incrementWorkshopStep,
 } from '../../RedisAdapter';
 import {
    WorkshopInitialDataServerTypes,
@@ -21,6 +23,7 @@ type WorkshopSocketInitialData = {
    template: any;
    moduleData?: WorkshopSocketUserAdd[];
    currentStep?: number;
+   isReview: boolean;
 };
 
 const HandleWorkshopConnect = async ({
@@ -28,7 +31,7 @@ const HandleWorkshopConnect = async ({
    workshopId,
 }: SocketServerHandlerType<null>) => {
    const usersOnline = await getUsersOnline(workshopId);
-   const currentStep = await getWorkshopStep(workshopId);
+   let currentStep = await getWorkshopStep(workshopId);
    const workshop = await Prisma.getInstance().workshop.findUnique({
       where: {
          id: workshopId,
@@ -43,7 +46,7 @@ const HandleWorkshopConnect = async ({
             include: {
                steps: {
                   where: {
-                     step: currentStep ?? 0,
+                     step: currentStep ?? 1,
                   },
                },
             },
@@ -62,6 +65,7 @@ const HandleWorkshopConnect = async ({
          ? (await getModuleUserData(workshopId))!
          : undefined,
       currentStep: currentStep || undefined,
+      isReview: await getModuleReview(workshopId),
    };
    socket.emit(WorkshopSocketEvents.WorkshopConnect, initialData);
 };
