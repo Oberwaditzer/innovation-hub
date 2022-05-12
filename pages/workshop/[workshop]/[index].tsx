@@ -7,6 +7,8 @@ import { WorkshopTitle } from '../../../frontend/components/workshop/components/
 import { WorkshopContext } from '../../../frontend/context/WorkshopContext';
 import { getWorkshopStep } from '../../../backend/workshop/RedisAdapter';
 import { useTimer } from '../../../frontend/hooks/useTimer';
+import { useUser } from '@auth0/nextjs-auth0';
+import { WorkshopBlocker } from '../../../frontend/components/workshop/components/WorkshopBlocker';
 
 type WorkshopRendererProps = {
    type: string;
@@ -15,17 +17,16 @@ type WorkshopRendererProps = {
 const WorkshopRenderer = ({ type }: WorkshopRendererProps) => {
    const context = useContext(WorkshopContext);
    useTimer();
+   const { user } = useUser();
+
    useEffect(() => {
-      context.connect();
-   }, [context]);
+      if (user) context.connect();
+   }, [context, user?.email]);
    return (
       <div className={'h-screen w-screen flex flex-initial flex-row'}>
+         <WorkshopBlocker />
          <WorkshopSidebar />
-         <div
-            className={
-               'w-full h-full flex flex-col items-center pt-10 pr-10 pb-10'
-            }
-         >
+         <div className={'w-full h-full flex flex-col items-center p-10'}>
             <WorkshopTitle />
             <BrainstormingModule />
          </div>
