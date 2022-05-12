@@ -7,6 +7,7 @@ import { MdAdd, MdArrowForward, MdRemove, MdTimer } from 'react-icons/md';
 import { WorkshopContext } from '../../../context/WorkshopContext';
 import { WorkshopSocketEvents } from '../../../../definitions/WorkshopSocketEvents';
 import { SidebarTimer } from './timer/SidebarTimer';
+import { ModuleNextButton } from './moduleNext/ModuleNextButton';
 
 const WorkshopSidebar = () => {
    const [sidebarExpanded, setSidebarExpanded] = useRecoilState(
@@ -47,13 +48,6 @@ const WorkshopSidebar = () => {
 };
 
 const WorkshopSidebarContent = () => {
-   const context = useContext(WorkshopContext);
-   const expanded = useRecoilValue(workshopSidebarExpandedState);
-
-   const goToNextScreen = () => {
-      context.sendData(WorkshopSocketEvents.WorkshopModuleNext, {});
-   };
-
    return (
       <div
          className={
@@ -72,13 +66,7 @@ const WorkshopSidebarContent = () => {
                contentSmall={<SidebarTimer isSmall={true} />}
             />
          </div>
-         <Button
-            className={'p-2 w-10 h-10'}
-            onClick={goToNextScreen}
-            rounded={true}
-         >
-            <MdArrowForward className="h-6 w-6" aria-hidden="true" />
-         </Button>
+         <ModuleNextButton />
       </div>
    );
 };
