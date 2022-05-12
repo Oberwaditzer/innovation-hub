@@ -17,7 +17,7 @@ import { Avatar } from '../../../frontend/components/avatars/Avatar';
 import { UserItem } from '../../../frontend/components/workshop/components/UserItem';
 import { getWorkshopStep } from '../../../backend/workshop/RedisAdapter';
 import { useTimer } from '../../../frontend/hooks/useTimer';
-import { getSession, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { getSession, useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
 import { ParsedUrlQuery } from 'querystring';
 
 type StartProps = {
@@ -36,10 +36,11 @@ const Start = ({ translations, workshopId }: StartProps) => {
    const context = useContext(WorkshopContext);
    const onlineUsers = useRecoilValue(sortedWorkshopUsers);
    const workshop = useRecoilValue(workshopState);
+   const { user } = useUser();
 
    useEffect(() => {
-      context.connect();
-   }, [context]);
+      if (user) context.connect();
+   }, [context, user?.email]);
    const onClick = () => {
       context.sendData(WorkshopSocketEvents.WorkshopModuleNext, {});
    };
@@ -86,7 +87,6 @@ export const getServerSideProps = withPageAuthRequired<
 >({
    returnTo: '/',
    async getServerSideProps(context) {
-      console.log(context);
       const workshopId = context.query.workshop as string;
       if (workshopId) {
          const currentStep = await getWorkshopStep(workshopId);

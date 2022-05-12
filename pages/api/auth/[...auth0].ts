@@ -19,13 +19,14 @@ export default handleAuth({
                      firstName: session.user.given_name,
                      lastName: session.user.family_name,
                   };
-                  await new PrismaClient().user.upsert({
+                  const user = await new PrismaClient().user.upsert({
                      where: {
                         email: session.user.email,
                      },
                      update: insertData,
                      create: insertData,
                   });
+                  session.user.db_id = user.id;
                }
                return session;
             },

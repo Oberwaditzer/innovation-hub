@@ -17,6 +17,7 @@ import { WorkshopSocketUserAdd } from '../../backend/workshop/socket/resolvers/H
 import { userState } from '../state/atoms/user';
 import { WorkshopSocketUserRemove } from '../../backend/workshop/socket/resolvers/HandleWorkshopUserRemove';
 import { timerState } from '../state/atoms/timer';
+import { useUser } from '@auth0/nextjs-auth0';
 
 const useUpdateData = () => {
    const router = useRouter();
@@ -89,7 +90,8 @@ const WorkshopContextProvider = ({
    const socket = useRef<Socket>(io({ autoConnect: false }));
    const [connected, setConnected] = useState(false);
    const user = useRecoilValue(userState);
-
+   const { user: userAuth } = useUser();
+   console.log('userAuth', userAuth);
    const router = useRouter();
 
    const {
@@ -106,7 +108,7 @@ const WorkshopContextProvider = ({
       console.info('Trying to connect to the server...');
 
       socket.current.auth = {
-         userId: user.userId,
+         userId: userAuth!.db_id,
          workshopId: router.query.workshop,
       };
       socket.current?.connect();

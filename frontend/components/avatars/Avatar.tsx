@@ -37,6 +37,7 @@ const Avatar = ({ src, className, isOffline = false }: AvatarProps) => {
          )}
          src={src}
          alt=""
+         referrerPolicy={'no-referrer'}
       />
    );
 };

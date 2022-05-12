@@ -55,7 +55,11 @@ const WorkshopSidebarContent = () => {
    };
 
    return (
-      <div className={'h-full w-full flex flex-initial flex-col pt-32 p-7'}>
+      <div
+         className={
+            'h-full w-full flex flex-initial flex-col pt-32 p-7 overflow-hidden'
+         }
+      >
          <div className={'flex flex-auto flex-col'}>
             <WorkshopSidebarEntry
                icon={<WorkshopSidebarIcon />}
@@ -65,6 +69,7 @@ const WorkshopSidebarContent = () => {
                      <SidebarTimer />
                   </>
                }
+               contentSmall={<SidebarTimer isSmall={true} />}
             />
          </div>
          <Button
@@ -81,24 +86,42 @@ const WorkshopSidebarContent = () => {
 type WorkshopSidebarEntryProps = {
    icon: React.ReactNode;
    iconSide: React.ReactNode;
+   contentSmall: React.ReactNode;
 };
 
 const WorkshopSidebarEntry = ({
    icon,
    iconSide,
+   contentSmall,
 }: WorkshopSidebarEntryProps) => {
    const sidebarExpanded = useRecoilValue(workshopSidebarExpandedState);
    return (
       <div className={'flex flex-initial flex-col w-full'}>
-         <div className={'flex flex-initial flex-row items-center w-full'}>
+         <div
+            className={
+               'flex flex-initial flex-row items-center w-full relative'
+            }
+         >
             {icon}
             <div
                className={classNames(
-                  'flex flex-initial flex-row justify-between flex-1',
+                  'flex flex-initial flex-row justify-between flex-1 absolute w-[254px] left-9 transition-opacity',
+                  {
+                     'opacity-0': !sidebarExpanded,
+                     'opacity-1': sidebarExpanded,
+                  },
                )}
             >
                {iconSide}
             </div>
+         </div>
+         <div
+            className={classNames('w-full flex justify-center mt-3', {
+               'opacity-1 max-h-2': !sidebarExpanded,
+               'opacity-0 max-h-0': sidebarExpanded,
+            })}
+         >
+            {contentSmall}
          </div>
       </div>
    );
