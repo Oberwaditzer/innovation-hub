@@ -3,11 +3,11 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { workshopSidebarExpandedState } from '../../../state/atoms/workshopSidebar';
 import classNames from 'classnames';
 import { Button } from '../../button/Button';
-import { MdAdd, MdArrowForward, MdRemove, MdTimer } from 'react-icons/md';
-import { WorkshopContext } from '../../../context/WorkshopContext';
-import { WorkshopSocketEvents } from '../../../../definitions/WorkshopSocketEvents';
+import { MdAdd, MdPersonOutline, MdRemove, MdTimer } from 'react-icons/md';
 import { SidebarTimer } from './timer/SidebarTimer';
 import { ModuleNextButton } from './moduleNext/ModuleNextButton';
+import { UserList, UsersFinished } from './users/UserList';
+import { Collapsable } from './collapsable/Collapsable';
 
 const WorkshopSidebar = () => {
    const [sidebarExpanded, setSidebarExpanded] = useRecoilState(
@@ -51,19 +51,41 @@ const WorkshopSidebarContent = () => {
    return (
       <div
          className={
-            'h-full w-full flex flex-initial flex-col pt-32 p-7 overflow-hidden'
+            'h-full w-full flex flex-initial flex-col pt-28 p-7 overflow-hidden'
          }
       >
          <div className={'flex flex-auto flex-col'}>
             <WorkshopSidebarEntry
-               icon={<WorkshopSidebarIcon />}
+               showDivider={true}
+               icon={
+                  <MdTimer
+                     className={classNames('h-10 w-10 text-blue-600')}
+                     aria-hidden="true"
+                  />
+               }
                iconSide={
                   <>
-                     <p className={'text-xl ml-4'}>Time left</p>
+                     <p className={'text-l ml-4'}>Time left</p>
                      <SidebarTimer />
                   </>
                }
                contentSmall={<SidebarTimer isSmall={true} />}
+            />
+            <WorkshopSidebarEntry
+               showDivider={true}
+               icon={
+                  <MdPersonOutline
+                     className={classNames('h-10 w-10 text-blue-600')}
+                     aria-hidden="true"
+                  />
+               }
+               iconSide={
+                  <>
+                     <p className={'text-l ml-4'}>Persons</p>
+                  </>
+               }
+               contentBig={<UserList />}
+               contentSmall={<UsersFinished />}
             />
          </div>
          <ModuleNextButton />
@@ -74,53 +96,62 @@ const WorkshopSidebarContent = () => {
 type WorkshopSidebarEntryProps = {
    icon: React.ReactNode;
    iconSide: React.ReactNode;
-   contentSmall: React.ReactNode;
+   contentSmall?: React.ReactNode;
+   contentBig?: React.ReactNode;
+   showDivider: boolean;
 };
 
 const WorkshopSidebarEntry = ({
    icon,
    iconSide,
    contentSmall,
+   contentBig,
+   showDivider = true,
 }: WorkshopSidebarEntryProps) => {
    const sidebarExpanded = useRecoilValue(workshopSidebarExpandedState);
    return (
-      <div className={'flex flex-initial flex-col w-full'}>
-         <div
-            className={
-               'flex flex-initial flex-row items-center w-full relative'
-            }
-         >
-            {icon}
+      <>
+         <div className={classNames('flex flex-initial flex-col w-full mt-3')}>
             <div
-               className={classNames(
-                  'flex flex-initial flex-row justify-between flex-1 absolute w-[254px] left-9 transition-opacity',
-                  {
-                     'opacity-0': !sidebarExpanded,
-                     'opacity-1': sidebarExpanded,
-                  },
-               )}
+               className={
+                  'flex flex-initial flex-row items-center w-full relative'
+               }
             >
-               {iconSide}
+               {icon}
+               <div
+                  className={classNames(
+                     'flex flex-initial flex-row justify-between flex-1 absolute w-[254px] left-9 transition-opacity',
+                     {
+                        'opacity-0': !sidebarExpanded,
+                        'opacity-100': sidebarExpanded,
+                     },
+                  )}
+               >
+                  {iconSide}
+               </div>
+            </div>
+            <div className={''}>
+               {contentBig && (
+                  <Collapsable width={true} height={true}>
+                     {contentBig}
+                  </Collapsable>
+               )}
+            </div>
+            <div
+               className={classNames('w-full flex justify-center', {
+                  'opacity-100 max-h-4 mt-3': !sidebarExpanded,
+                  'opacity-0 max-h-0': sidebarExpanded,
+               })}
+            >
+               {contentSmall}
             </div>
          </div>
          <div
-            className={classNames('w-full flex justify-center mt-3', {
-               'opacity-1 max-h-2': !sidebarExpanded,
-               'opacity-0 max-h-0': sidebarExpanded,
+            className={classNames('', {
+               'border-b border-gray-300 mt-3': showDivider,
             })}
-         >
-            {contentSmall}
-         </div>
-      </div>
-   );
-};
-
-const WorkshopSidebarIcon = () => {
-   return (
-      <MdTimer
-         className={classNames('h-10 w-10 text-blue-600')}
-         aria-hidden="true"
-      />
+         />
+      </>
    );
 };
 

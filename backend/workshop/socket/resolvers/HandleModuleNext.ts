@@ -1,6 +1,7 @@
 import { WorkshopSocketEvents } from '../../../../definitions/WorkshopSocketEvents';
 import { SocketServerHandlerType } from '../SockerServer';
 import {
+   clearUsersFinished,
    getWorkshopStep,
    incrementWorkshopStep,
    setModuleReview,
@@ -37,6 +38,7 @@ const HandleModuleNext = async ({
    const workshopStep = workshop!.template!.steps[0];
    await incrementWorkshopStep(workshopId);
    await setModuleReview(workshopId, false);
+   await clearUsersFinished(workshopId);
    io.in(workshopId).emit(
       WorkshopSocketEvents.WorkshopModuleNext,
       workshopStep,

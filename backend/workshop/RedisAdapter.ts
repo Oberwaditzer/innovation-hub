@@ -20,6 +20,22 @@ const getUsersOnline = async (workshop: string) => {
    return await client.sMembers(`${workshop}:users:online`);
 };
 
+const addUserFinished = async (workshop: string, userId: string) => {
+   await client.sAdd(`${workshop}:users:finished`, userId);
+};
+
+const removeUserFinished = async (workshop: string, userId: string) => {
+   await client.sRem(`${workshop}:users:finished`, userId);
+};
+
+const getUsersFinished = async (workshop: string) => {
+   return await client.sMembers(`${workshop}:users:finished`);
+};
+
+const clearUsersFinished = async (workshop: string) => {
+   return await client.del(`${workshop}:users:finished`);
+};
+
 const getWorkshopStep = async (workshop: string) => {
    const step = await client.get(`${workshop}:step`);
    if (step) {
@@ -88,4 +104,8 @@ export {
    clearModuleUserData,
    setModuleReview,
    getModuleReview,
+   addUserFinished,
+   removeUserFinished,
+   getUsersFinished,
+   clearUsersFinished,
 };

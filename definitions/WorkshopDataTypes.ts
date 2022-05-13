@@ -11,6 +11,7 @@ type WorkshopInitialDataServerTypes = WorkshopInitialDataTypes & {
 type WorkshopUser = User & {
    isFacilitator: boolean;
    isOnline: boolean;
+   isFinished: boolean;
 };
 
 export type {

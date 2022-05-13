@@ -35,10 +35,11 @@ async function main() {
    });
 
    const leon = await prisma.user.upsert({
-      where: { email: 'leon@innovation.hub' },
+      where: { email: 'leon.oberwaditzer@gmail.com' },
       update: {},
       create: {
-         email: 'leon@innovation.hub',
+         id: 'cl2ss9h9m00258eh5v6s25i69',
+         email: 'leon.oberwaditzer@gmail.com',
          username: 'leon.oberwaditzer',
          firstName: 'Leon',
          lastName: 'Oberwaditzer',
@@ -112,13 +113,24 @@ async function main() {
       await prisma.workshopTemplateStep.create({
          data: {
             title: 'Brainstorming',
-            step: 0,
+            step: 1,
             durationSeconds: 300,
             type: 'brainstorming',
             data: {},
             workshopTemplateId: workshopTemplate.id,
          },
       });
+
+   await prisma.workshopTemplateStep.create({
+      data: {
+         title: 'Brainstorming 2',
+         step: 2,
+         durationSeconds: 300,
+         type: 'brainstorming',
+         data: {},
+         workshopTemplateId: workshopTemplate.id,
+      },
+   });
 
    await prisma.workshop
       .upsert({
