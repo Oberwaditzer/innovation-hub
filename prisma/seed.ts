@@ -48,6 +48,20 @@ async function main() {
       },
    });
 
+   const leon2 = await prisma.user.upsert({
+      where: { email: 'technoobi@gmail.com' },
+      update: {},
+      create: {
+         id: 'cl2ss9h9m00258eh5v6s25i60',
+         email: 'technoobi@gmail.com',
+         username: 'technoobi',
+         firstName: 'Leon 2',
+         lastName: 'Oberwaditzer',
+         profilePictureURL:
+            'https://ca.slack-edge.com/T02NXMD73PS-U02N1938PCN-e92454e40239-72',
+      },
+   });
+
    const luca = await prisma.user.upsert({
       where: { email: 'luca@innovation.hub' },
       update: {},
@@ -76,6 +90,16 @@ async function main() {
       update: {},
       create: {
          userId: leon.id,
+         teamId: designTeam.id,
+         admin: false,
+      },
+   });
+
+   await prisma.usersOnTeams.upsert({
+      where: { userId_teamId: { userId: leon2.id, teamId: designTeam.id } },
+      update: {},
+      create: {
+         userId: leon2.id,
          teamId: designTeam.id,
          admin: false,
       },
@@ -165,7 +189,7 @@ async function main() {
             create: {
                workshopId: workshop.id,
                userId: thomas.id,
-               admin: true,
+               admin: false,
             },
          });
          await prisma.usersOnWorkshops.upsert({
@@ -176,6 +200,17 @@ async function main() {
             create: {
                workshopId: workshop.id,
                userId: leon.id,
+               admin: true,
+            },
+         });
+         await prisma.usersOnWorkshops.upsert({
+            where: {
+               userId_workshopId: { workshopId: workshop.id, userId: leon2.id },
+            },
+            update: {},
+            create: {
+               workshopId: workshop.id,
+               userId: leon2.id,
                admin: false,
             },
          });

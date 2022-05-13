@@ -18,17 +18,23 @@ import { userState } from '../state/atoms/user';
 import { WorkshopSocketUserRemove } from '../../backend/workshop/socket/resolvers/HandleWorkshopUserRemove';
 import { timerState } from '../state/atoms/timer';
 import { useUser } from '@auth0/nextjs-auth0';
-import { WorkshopSocketModuleReview } from '../../backend/workshop/socket/resolvers/HandleModuleReview';
+import {
+   WorkshopSocketModuleReview,
+   WorkshopSocketModuleReviewFromServer,
+} from '../../backend/workshop/socket/resolvers/HandleModuleReview';
 import { reviewModeState } from '../state/atoms/reviewMode';
 import { WorkshopSocketUserFinished } from '../../backend/workshop/socket/resolvers/HandleUserFinished';
 
 const useUpdateData = () => {
    const router = useRouter();
 
+   const { user: userAuth } = useUser();
+
    const setWorkshopState = useSetRecoilState(workshopState);
    const setWorkshopModuleState = useSetRecoilState(workshopModule);
    const updateModuleUserInputState = useSetRecoilState(moduleUserDataState);
    const setUserState = useSetRecoilState(workshopUsers);
+   const setPersonalUserState = useSetRecoilState(userState);
    const setTimerState = useSetRecoilState(timerState);
    const setReviewMode = useSetRecoilState(reviewModeState);
 
@@ -61,6 +67,12 @@ const useUpdateData = () => {
          ]);
          setWorkshopModuleState(data.template!.steps[0]);
          setReviewMode(data.isReview);
+         setPersonalUserState({
+            userId: (userAuth?.db_id as string) ?? '',
+            isFacilitator:
+               data.users.find((user) => user.id === userAuth?.db_id)
+                  ?.isFacilitator ?? false,
+         });
       }
    };
 
@@ -77,12 +89,15 @@ const useUpdateData = () => {
       setReviewMode(false);
    };
 
-   const setWorkshopModuleReview = (data: WorkshopSocketModuleReview) => {
+   const setWorkshopModuleReview = (
+      data: WorkshopSocketModuleReviewFromServer,
+   ) => {
       setTimerState((value) => ({
          ...value,
          timeLeft: 0,
          isActive: false,
       }));
+      updateModuleUserInputState(data.data);
       setReviewMode(data.inReview);
    };
 

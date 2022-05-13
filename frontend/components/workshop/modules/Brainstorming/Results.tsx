@@ -53,7 +53,7 @@ const ResultElement = ({ user, data }: ResultElementProps) => {
             'bg-gray-100 p-4 flex flex-initial flex-row items-center mb-3 rounded-2xl relative w-full'
          }
       >
-         {(currentUser.isFacilitator || currentUser.userId) === data.userId && (
+         {(currentUser.isFacilitator || currentUser.userId === data.userId) && (
             <Button
                className={'absolute -top-3 -right-3 p-1'}
                rounded={true}

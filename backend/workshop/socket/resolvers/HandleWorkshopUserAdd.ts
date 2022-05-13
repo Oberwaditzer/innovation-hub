@@ -4,9 +4,10 @@ import { SocketServerHandlerType } from '../SockerServer';
 import { JsonObject } from 'type-fest';
 import { v4 as uuidv4 } from 'uuid';
 import { addModuleUserData } from '../../RedisAdapter';
+import { PrismaClient, WorkshopPrivacyLevel } from '@prisma/client';
 
 type WorkshopSocketUserAdd = {
-   userId: string;
+   userId: string | null;
    id: string;
    data: JsonObject;
 };
@@ -18,13 +19,30 @@ const HandleWorkshopUserAdd = async ({
    data,
    io,
 }: SocketServerHandlerType<any>) => {
-   const returnData: WorkshopSocketUserAdd = {
+   const workshop = await new PrismaClient().workshop.findUnique({
+      where: {
+         id: workshopId,
+      },
+   });
+   const privacyLevel: WorkshopPrivacyLevel =
+      workshop?.privacyLevel || 'PRIVATE';
+   let returnData: WorkshopSocketUserAdd = {
       userId: userId,
       id: uuidv4(),
       data: data.data,
    };
    await addModuleUserData(workshopId, returnData);
-   io.to(workshopId).emit(WorkshopSocketEvents.WorkshopUserAdd, returnData);
+   if (privacyLevel === 'FULL_VISIBLE') {
+      io.to(workshopId).emit(WorkshopSocketEvents.WorkshopUserAdd, returnData);
+   } else if (privacyLevel === 'VISIBLE_WITHOUT_USER_INFORMATION') {
+      socket.emit(WorkshopSocketEvents.WorkshopUserAdd, returnData);
+      returnData.userId = null;
+      socket
+         .to(workshopId)
+         .emit(WorkshopSocketEvents.WorkshopUserAdd, returnData);
+   } else {
+      socket.emit(WorkshopSocketEvents.WorkshopUserAdd, returnData);
+   }
 };
 
 export type { WorkshopSocketUserAdd };
