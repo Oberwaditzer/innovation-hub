@@ -58,6 +58,7 @@ const HandleWorkshopConnect = async ({
          ...user.user,
          isOnline: usersOnline.includes(user.user.id),
          isFacilitator: false,
+         isFinished: false,
       })),
       name: workshop!.title,
       template: workshop!.template,

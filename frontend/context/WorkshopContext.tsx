@@ -20,6 +20,7 @@ import { timerState } from '../state/atoms/timer';
 import { useUser } from '@auth0/nextjs-auth0';
 import { WorkshopSocketModuleReview } from '../../backend/workshop/socket/resolvers/HandleModuleReview';
 import { reviewModeState } from '../state/atoms/reviewMode';
+import { WorkshopSocketUserFinished } from '../../backend/workshop/socket/resolvers/HandleUserFinished';
 
 const useUpdateData = () => {
    const router = useRouter();
@@ -27,12 +28,12 @@ const useUpdateData = () => {
    const setWorkshopState = useSetRecoilState(workshopState);
    const setWorkshopModuleState = useSetRecoilState(workshopModule);
    const updateModuleUserInputState = useSetRecoilState(moduleUserDataState);
-   const setUserOnlineState = useSetRecoilState(workshopUsers);
+   const setUserState = useSetRecoilState(workshopUsers);
    const setTimerState = useSetRecoilState(timerState);
    const setReviewMode = useSetRecoilState(reviewModeState);
 
    const setUserOnlineStatus = (user: string, isOnline: boolean) => {
-      setUserOnlineState((users) =>
+      setUserState((users) =>
          users!.map((u) => ({
             ...u,
             isOnline: user === u.id ? isOnline : u.isOnline,
@@ -40,9 +41,18 @@ const useUpdateData = () => {
       );
    };
 
+   const setUserFinished = (data: WorkshopSocketUserFinished) => {
+      setUserState((users) =>
+         users!.map((u) => ({
+            ...u,
+            isFinished: data.userId === u.id ? data.isFinished : u.isFinished,
+         })),
+      );
+   };
+
    const setWorkshopConnect = (data: WorkshopSocketInitialData) => {
       setWorkshopState(data);
-      setUserOnlineState(data.users);
+      setUserState(data.users);
       if (data.currentStep && data.moduleData) {
          router.push(`/workshop/${router.query.workshop}/${data.currentStep}`);
          updateModuleUserInputState((values) => [
@@ -63,6 +73,7 @@ const useUpdateData = () => {
          timeLeft: data.durationSeconds,
          initialTime: data.durationSeconds,
       });
+      setUserState((users) => users!.map((u) => ({ ...u, isFinished: false })));
       setReviewMode(false);
    };
 
@@ -92,6 +103,7 @@ const useUpdateData = () => {
       setUpdateModuleUserAdd,
       setUpdateModuleUserRemove,
       setWorkshopModuleReview,
+      setUserFinished,
    };
 };
 
@@ -116,6 +128,7 @@ const WorkshopContextProvider = ({
       setUpdateModuleUserAdd,
       setUpdateModuleUserRemove,
       setWorkshopModuleReview,
+      setUserFinished,
    } = useUpdateData();
 
    const connect = () => {
@@ -147,6 +160,10 @@ const WorkshopContextProvider = ({
 
       socket.current.on(WorkshopSocketEvents.WorkshopUserOnline, (data) =>
          setUserOnlineStatus(data, true),
+      );
+
+      socket.current.on(WorkshopSocketEvents.WorkshopUserFinished, (data) =>
+         setUserFinished(data),
       );
 
       socket.current.on(WorkshopSocketEvents.WorkshopUserOffline, (data) =>

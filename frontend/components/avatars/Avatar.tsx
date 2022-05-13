@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 type AvatarProps = {
-   src?: string;
+   src?: string | null;
    className?: string;
    isOffline?: boolean;
 };

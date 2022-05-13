@@ -21,7 +21,7 @@ const SidebarTimer = ({ isSmall = false }: SidebarTimerProps) => {
    const printValue = `${addLeadingZero(minutes)}:${addLeadingZero(seconds)}`;
    return (
       <p
-         className={classNames('text-xl text-gray-400', {
+         className={classNames('text-l text-gray-400', {
             'text-red-400': minutes === 0 && seconds < 30 && seconds % 2 === 0,
             'text-xs': isSmall,
          })}

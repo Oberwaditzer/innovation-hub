@@ -5,6 +5,7 @@ import {
 } from '../../../definitions/WorkshopDataTypes';
 import { WorkshopSocketUserAdd } from '../../../backend/workshop/socket/resolvers/HandleWorkshopUserAdd';
 import { WorkshopStep } from '@prisma/client';
+import { userState } from './user';
 
 const workshopState = atom<WorkshopInitialDataTypes | null>({
    key: 'workshop',
@@ -31,6 +32,16 @@ const sortedWorkshopUsers = selector({
    },
 });
 
+const isUserFinishedState = selector({
+   key: 'workshop/user/isFinished',
+   get: ({ get }) => {
+      const user = get(userState);
+      const users = get(workshopUsers);
+      if (!users || users.length === 0) return false;
+      return users.find((u) => u.id === user.userId)?.isFinished ?? false;
+   },
+});
+
 const workshopModule = atom<WorkshopStep | null>({
    key: 'workshop/module',
    default: null,
@@ -47,4 +58,5 @@ export {
    workshopModule,
    sortedWorkshopUsers,
    moduleUserDataState,
+   isUserFinishedState,
 };
