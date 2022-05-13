@@ -15,7 +15,6 @@ const Collapsable = ({ children, width, height }: CollapsableProps) => {
 
    const [maxWidth, setMaxWidth] = useState(0);
    const [maxHeight, setMaxHeight] = useState(0);
-   console.log('maxwidth', maxWidth);
 
    useEffect(() => {
       if (
@@ -33,8 +32,9 @@ const Collapsable = ({ children, width, height }: CollapsableProps) => {
       <div
          ref={containerRef}
          style={{
-            maxWidth: isExpanded && width ? maxWidth : undefined,
-            maxHeight: isExpanded && height ? maxHeight : undefined,
+            maxWidth: isExpanded && width && maxWidth ? maxWidth : undefined,
+            maxHeight:
+               isExpanded && height && maxHeight ? maxHeight : undefined,
          }}
          className={classNames('transition-opacity overflow-hidden', {
             'transition-max-width': width,
