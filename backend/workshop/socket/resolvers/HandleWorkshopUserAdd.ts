@@ -3,13 +3,15 @@ import { WorkshopSocketEvents } from '../../../../definitions/WorkshopSocketEven
 import { SocketServerHandlerType } from '../SockerServer';
 import { JsonObject } from 'type-fest';
 import { v4 as uuidv4 } from 'uuid';
-import { addModuleUserData } from '../../RedisAdapter';
+import {addModuleUserData, getModuleStartTime} from '../../RedisAdapter';
 import { PrismaClient, WorkshopPrivacyLevel } from '@prisma/client';
 
 type WorkshopSocketUserAdd = {
    userId: string | null;
    id: string;
    data: JsonObject;
+   millisecondsInWorkshop: number,
+   dateTime: Date
 };
 
 const HandleWorkshopUserAdd = async ({
@@ -24,12 +26,15 @@ const HandleWorkshopUserAdd = async ({
          id: workshopId,
       },
    });
+   const millisecondsPassed = new Date().getTime() - (await getModuleStartTime(workshopId));
    const privacyLevel: WorkshopPrivacyLevel =
       workshop?.privacyLevel || 'PRIVATE';
    let returnData: WorkshopSocketUserAdd = {
       userId: userId,
       id: uuidv4(),
       data: data.data,
+      dateTime: new Date(),
+      millisecondsInWorkshop: millisecondsPassed
    };
    await addModuleUserData(workshopId, returnData);
    if (privacyLevel === 'FULL_VISIBLE') {

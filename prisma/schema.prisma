@@ -18,7 +18,7 @@ model User {
   id                String             @id @default(cuid())
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
-  username          String?             @unique
+  username          String?            @unique
   email             String             @unique
   emailConfirmed    Boolean            @default(false)
   firstName         String?
@@ -27,6 +27,7 @@ model User {
   teams             UsersOnTeams[]
   workshops         UsersOnWorkshops[]
   WorkshopTemplate  WorkshopTemplate[]
+  WorkshopStepData  WorkshopStepData[]
 }
 
 model Team {
@@ -82,17 +83,28 @@ model Workshop {
 }
 
 model WorkshopStep {
-  id              String   @id @default(cuid())
+  id              String             @id @default(cuid())
   title           String
   description     String?
   type            String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
   durationSeconds Int
   step            Int
-  data            Json     @default("{}")
-  workshop        Workshop @relation(fields: [workshopId], references: [id])
+  data            WorkshopStepData[]
+  workshop        Workshop           @relation(fields: [workshopId], references: [id])
   workshopId      String
+}
+
+model WorkshopStepData {
+  id             String        @id @default(cuid())
+  creator        User          @relation(fields: [userId], references: [id])
+  createTime     DateTime
+  timeInWorkshop Int
+  data           Json
+  WorkshopStep   WorkshopStep @relation(fields: [workshopStepId], references: [id])
+  workshopStepId String
+  userId         String
 }
 
 enum WorkshopPrivacyLevel {
