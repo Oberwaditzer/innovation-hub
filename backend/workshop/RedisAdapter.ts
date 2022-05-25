@@ -1,129 +1,144 @@
-import {createClient} from 'redis';
-import {JsonObject} from 'type-fest';
-import {WorkshopSocketUserAdd} from './socket/resolvers/HandleWorkshopUserAdd';
+import { createClient } from 'redis';
+import { WorkshopAddOutput } from '../../definitions/WorkshopDataTypes';
 
-const client = createClient();
+const client = async() => {
+   const client = createClient();
 
-client.on('error', (err) => console.log('Redis Client Error', err));
+   client.on('error', (err) => console.log('Redis Client Error', err));
 
-client.connect();
+   await client.connect();
+   return client;
+}
+
+
 
 const addUserOnline = async (workshop: string, userId: string) => {
-    await client.sAdd(`${workshop}:users:online`, userId);
+   await (await client()).sAdd(`${workshop}:users:online`, userId);
 };
 
 const removeUserOnline = async (workshop: string, userId: string) => {
-    await client.sRem(`${workshop}:users:online`, userId);
+   await (await client()).sRem(`${workshop}:users:online`, userId);
 };
 
 const getUsersOnline = async (workshop: string) => {
-    return await client.sMembers(`${workshop}:users:online`);
+   return await (await client()).sMembers(`${workshop}:users:online`);
 };
 
 const addUserFinished = async (workshop: string, userId: string) => {
-    await client.sAdd(`${workshop}:users:finished`, userId);
+   await (await client()).sAdd(`${workshop}:users:finished`, userId);
 };
 
 const removeUserFinished = async (workshop: string, userId: string) => {
-    await client.sRem(`${workshop}:users:finished`, userId);
+   await (await client()).sRem(`${workshop}:users:finished`, userId);
 };
 
 const getUsersFinished = async (workshop: string) => {
-    return await client.sMembers(`${workshop}:users:finished`);
+   return await (await client()).sMembers(`${workshop}:users:finished`);
 };
 
 const clearUsersFinished = async (workshop: string) => {
-    return await client.del(`${workshop}:users:finished`);
+   return await (await client()).del(`${workshop}:users:finished`);
 };
 
 const getWorkshopStep = async (workshop: string) => {
-    const step = await client.get(`${workshop}:step`);
-    if (step) {
-        return parseInt(step);
-    }
-    return null;
+   const step = await (await client()).get(`${workshop}:step`);
+   if (step) {
+      return parseInt(step);
+   }
+   return null;
 };
 
 const incrementWorkshopStep = async (workshop: string) => {
-    return await client.incr(`${workshop}:step`);
+   return await (await client()).incr(`${workshop}:step`);
 };
 
 const setModuleReview = async (workshop: string, isReview: boolean) => {
-    return await client.set(`${workshop}:module:review`, isReview.toString());
+   return await (await client()).set(`${workshop}:module:review`, isReview.toString());
 };
 
 const getModuleReview = async (workshop: string) => {
-    const value = await client.get(`${workshop}:module:review`);
-    if (value) {
-        return JSON.parse(value);
-    }
-    return false;
+   const value = await (await client()).get(`${workshop}:module:review`);
+   if (value) {
+      return JSON.parse(value);
+   }
+   return false;
 };
 
 const getModuleUserData = async (workshop: string) => {
-    const data = await client.lRange(`${workshop}:module:data`, 0, -1);
-    if (data) {
-        try {
-            return data
-                .map((e) => JSON.parse(e) as WorkshopSocketUserAdd)
-                .reverse();
-        } catch (_) {
-        }
-    }
-    return null;
+   const data = await (await client()).lRange(`${workshop}:module:data`, 0, -1);
+   if (data) {
+      try {
+         return data
+            .map((e) => JSON.parse(e) as WorkshopAddOutput)
+            .reverse();
+      } catch (_) {
+      }
+   }
+   return null;
 };
 
 const addModuleUserData = async (
-    workshop: string,
-    data: WorkshopSocketUserAdd,
+   workshop: string,
+   data: WorkshopAddOutput,
 ) => {
-    return await client.lPush(`${workshop}:module:data`, JSON.stringify(data));
+   return await (await client()).lPush(`${workshop}:module:data`, JSON.stringify(data));
 };
 
 const removeModuleUserData = async (workshop: string, id: string) => {
-    const currentData = await getModuleUserData(workshop);
-    if (!currentData) return;
-    const data = currentData.find((e) => e.id === id);
-    if (data) {
-        await client.lRem(`${workshop}:module:data`, 0, JSON.stringify(data));
-    }
+   const currentData = await getModuleUserData(workshop);
+   if (!currentData) return;
+   const data = currentData.find((e) => e.id === id);
+   if (data) {
+      await (await client()).lRem(`${workshop}:module:data`, 0, JSON.stringify(data));
+   }
 };
 
 const clearModuleUserData = async (workshop: string) => {
-    return await client.del(`${workshop}:module:data`);
+   return await (await client()).del(`${workshop}:module:data`);
 };
 
 const setModuleStartTime = async (workshop: string, startTime: number) => {
-    await client.set(`${workshop}:module:start`, startTime);
-}
+   await (await client()).set(`${workshop}:module:start`, startTime);
+};
 
 const getModuleStartTime = async (workshop: string) => {
-    const res = await client.get(`${workshop}:module:start`);
-    if(!res)return 0;
-    try{
-        return parseInt(res);
-    }catch (e){
-        console.error('Could not parse getModuleStartTime')
-    }
-    return 0;
-}
+   const res = await (await client()).get(`${workshop}:module:start`);
+   if (!res) return 0;
+   try {
+      return parseInt(res);
+   } catch (e) {
+      console.error('Could not parse getModuleStartTime');
+   }
+   return 0;
+};
+
+const setWorkshopInResults = async (workshop: string, inReview: boolean) => {
+   await (await client()).set(`${workshop}:inResults`, inReview.toString());
+};
+
+const getWorkshopInResults = async (workshop: string) => {
+   const res = await (await client()).get(`${workshop}:inResults`);
+   return res === 'true';
+};
 
 export {
-    addUserOnline,
-    removeModuleUserData,
-    removeUserOnline,
-    getUsersOnline,
-    getWorkshopStep,
-    incrementWorkshopStep,
-    getModuleUserData,
-    addModuleUserData,
-    clearModuleUserData,
-    setModuleReview,
-    getModuleReview,
-    addUserFinished,
-    removeUserFinished,
-    getUsersFinished,
-    clearUsersFinished,
-    setModuleStartTime,
-    getModuleStartTime
+   addUserOnline,
+   removeModuleUserData,
+   removeUserOnline,
+   getUsersOnline,
+   getWorkshopStep,
+   incrementWorkshopStep,
+   getModuleUserData,
+   addModuleUserData,
+   clearModuleUserData,
+   setModuleReview,
+   getModuleReview,
+   addUserFinished,
+   removeUserFinished,
+   getUsersFinished,
+   clearUsersFinished,
+   setModuleStartTime,
+   getModuleStartTime,
+   getWorkshopInResults,
+   setWorkshopInResults,
 };

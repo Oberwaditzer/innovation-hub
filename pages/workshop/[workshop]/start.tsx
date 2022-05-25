@@ -3,22 +3,18 @@ import { Button } from '../../../frontend/components/button/Button';
 import { WorkshopContext } from '../../../frontend/context/WorkshopContext';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Spinner } from '../../../frontend/components/spinner/Spinner';
-import { GetServerSidePropsContext } from 'next';
-import { useRouter } from 'next/router';
 import { WorkshopSocketEvents } from '../../../definitions/WorkshopSocketEvents';
-import { useRecoilValue } from 'recoil';
-import {
-   sortedWorkshopUsers,
-   workshopState,
-   workshopUsers,
-} from '../../../frontend/state/atoms/workshop';
-import { WorkshopUser } from '../../../definitions/WorkshopDataTypes';
-import { Avatar } from '../../../frontend/components/avatars/Avatar';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { sortedWorkshopUsers, workshopState } from '../../../frontend/state/atoms/workshop';
 import { UserItem } from '../../../frontend/components/workshop/components/UserItem';
-import { getWorkshopStep } from '../../../backend/workshop/RedisAdapter';
-import { useTimer } from '../../../frontend/hooks/useTimer';
-import { getSession, useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { getWorkshopInResults, getWorkshopStep } from '../../../backend/workshop/RedisAdapter';
+import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
 import { ParsedUrlQuery } from 'querystring';
+import {
+   redirectToCorrectWorkshopPage,
+   RedirectToCorrectWorkshopPageEnum,
+} from '../../../backend/Routing/WorkshopRouting';
+import { userState } from '../../../frontend/state/atoms/user';
 
 type StartProps = {
    translations: {
@@ -36,6 +32,7 @@ const Start = ({ translations, workshopId }: StartProps) => {
    const context = useContext(WorkshopContext);
    const onlineUsers = useRecoilValue(sortedWorkshopUsers);
    const workshop = useRecoilValue(workshopState);
+   const personalUserState = useRecoilValue(userState);
    const { user } = useUser();
 
    useEffect(() => {
@@ -68,7 +65,7 @@ const Start = ({ translations, workshopId }: StartProps) => {
             </div>
             {!context.connected && <Spinner />}
             {context.connected && <p>Waiting for your faciliator...</p>}
-            <Button onClick={onClick} text={'Start Workshop'} />
+            {personalUserState.isFacilitator && <Button onClick={onClick} text={'Start Workshop'} />}
          </div>
       </div>
    );
@@ -81,23 +78,15 @@ type GetServerSidePropsContextWithLocale = ParsedUrlQuery & {
    };
 };
 
-export const getServerSideProps = withPageAuthRequired<
-   any,
-   GetServerSidePropsContextWithLocale
->({
+export const getServerSideProps = withPageAuthRequired<any,
+   GetServerSidePropsContextWithLocale>({
    returnTo: '/',
    async getServerSideProps(context) {
       const workshopId = context.query.workshop as string;
-      if (workshopId) {
-         const currentStep = await getWorkshopStep(workshopId);
-         if (currentStep) {
-            return {
-               redirect: {
-                  permanent: false,
-                  destination: `/workshop/${workshopId}/${currentStep}`,
-               },
-            };
-         }
+      const redirect = await redirectToCorrectWorkshopPage(workshopId, RedirectToCorrectWorkshopPageEnum.START);
+      console.log('redirect', redirect);
+      if (redirect) {
+         return redirect;
       }
       const translations = (await serverSideTranslations(context.locale!))
          ._nextI18Next.initialI18nStore[context.locale!].common;
@@ -120,5 +109,6 @@ export const getServerSideProps = withPageAuthRequired<
       };
    },
 });
+
 
 export default Start;

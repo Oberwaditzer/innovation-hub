@@ -8,6 +8,7 @@ import {
 } from './backend/workshop/socket/SockerServer';
 import { hasUserAccessToWorkshop } from './backend/workshop/UserAccess';
 import Prisma from './backend/singleton/Prisma';
+import { createClient } from 'redis';
 
 const port: number = parseInt(process.env.PORT || '3001', 10);
 const dev: boolean = process.env.NODE_ENV !== 'production';

@@ -91,20 +91,24 @@ model WorkshopStep {
   updatedAt       DateTime           @updatedAt
   durationSeconds Int
   step            Int
+  configuration   Json               @default("{}")
   data            WorkshopStepData[]
   workshop        Workshop           @relation(fields: [workshopId], references: [id])
   workshopId      String
+  @@unique([id, step])
 }
 
 model WorkshopStepData {
-  id             String        @id @default(cuid())
-  creator        User          @relation(fields: [userId], references: [id])
-  createTime     DateTime
-  timeInWorkshop Int
-  data           Json
-  WorkshopStep   WorkshopStep @relation(fields: [workshopStepId], references: [id])
-  workshopStepId String
-  userId         String
+  id                    String        @id @default(cuid())
+  creator               User          @relation(fields: [userId], references: [id])
+  createTime            DateTime
+  timeInWorkshop        Int
+  data                  Json
+  WorkshopStep          WorkshopStep @relation(fields: [workshopStepId], references: [id])
+  workshopStepId        String
+  userId                String
+  type                  String?
+  relevantForNextModule Boolean @default(false)
 }
 
 enum WorkshopPrivacyLevel {

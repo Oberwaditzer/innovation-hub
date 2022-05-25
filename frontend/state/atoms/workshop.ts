@@ -1,9 +1,5 @@
 import { atom, selector } from 'recoil';
-import {
-   WorkshopInitialDataTypes,
-   WorkshopUser,
-} from '../../../definitions/WorkshopDataTypes';
-import { WorkshopSocketUserAdd } from '../../../backend/workshop/socket/resolvers/HandleWorkshopUserAdd';
+import { WorkshopAddOutput, WorkshopInitialDataTypes, WorkshopUser } from '../../../definitions/WorkshopDataTypes';
 import { WorkshopStep } from '@prisma/client';
 import { userState } from './user';
 
@@ -47,8 +43,13 @@ const workshopModule = atom<WorkshopStep | null>({
    default: null,
 });
 
-const moduleUserDataState = atom<WorkshopSocketUserAdd[]>({
+const moduleUserDataState = atom<WorkshopAddOutput[]>({
    key: 'module/data',
+   default: [],
+});
+
+const modulePreviousUserData = atom<WorkshopAddOutput[]>({
+   key: 'module/previous',
    default: [],
 });
 
@@ -59,4 +60,5 @@ export {
    sortedWorkshopUsers,
    moduleUserDataState,
    isUserFinishedState,
+   modulePreviousUserData,
 };
