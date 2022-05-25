@@ -10,6 +10,7 @@ import { reviewModeState } from '../../../../state/atoms/reviewMode';
 import { WorkshopSocketModuleReview } from '../../../../../backend/workshop/socket/resolvers/HandleModuleReview';
 import { WorkshopSocketUserFinished } from '../../../../../backend/workshop/socket/resolvers/HandleUserFinished';
 import { isUserFinishedState } from '../../../../state/atoms/workshop';
+import { resultsModeState } from '../../../../state/atoms/inResults';
 
 const ModuleNextButton = () => {
    const context = useContext(WorkshopContext);
@@ -17,6 +18,11 @@ const ModuleNextButton = () => {
    const isReviewMode = useRecoilValue(reviewModeState);
    const { isFacilitator, userId } = useRecoilValue(userState);
    const isUserFinished = useRecoilValue(isUserFinishedState);
+   const isResults = useRecoilValue(resultsModeState);
+
+   if (isResults) {
+      return null;
+   }
 
    const onClickFacilitator = () => {
       if (!isReviewMode) {
@@ -43,9 +49,9 @@ const ModuleNextButton = () => {
             rounded={true}
          >
             {isUserFinished ? (
-               <MdClear className="h-6 w-6" aria-hidden="true" />
+               <MdClear className='h-6 w-6' aria-hidden='true' />
             ) : (
-               <MdDone className="h-6 w-6" aria-hidden="true" />
+               <MdDone className='h-6 w-6' aria-hidden='true' />
             )}
          </Button>
       );
@@ -56,7 +62,7 @@ const ModuleNextButton = () => {
          onClick={onClickFacilitator}
          rounded={true}
       >
-         <MdArrowForward className="h-6 w-6" aria-hidden="true" />
+         <MdArrowForward className='h-6 w-6' aria-hidden='true' />
       </Button>
    );
 };

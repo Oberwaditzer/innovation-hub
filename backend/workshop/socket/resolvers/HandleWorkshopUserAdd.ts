@@ -1,26 +1,19 @@
-import * as socketio from 'socket.io';
 import { WorkshopSocketEvents } from '../../../../definitions/WorkshopSocketEvents';
 import { SocketServerHandlerType } from '../SockerServer';
-import { JsonObject } from 'type-fest';
 import { v4 as uuidv4 } from 'uuid';
-import {addModuleUserData, getModuleStartTime} from '../../RedisAdapter';
+import { addModuleUserData, getModuleStartTime } from '../../RedisAdapter';
 import { PrismaClient, WorkshopPrivacyLevel } from '@prisma/client';
+import { WorkshopAddInput, WorkshopAddOutput } from '../../../../definitions/WorkshopDataTypes';
 
-type WorkshopSocketUserAdd = {
-   userId: string | null;
-   id: string;
-   data: JsonObject;
-   millisecondsInWorkshop: number,
-   dateTime: Date
-};
 
 const HandleWorkshopUserAdd = async ({
-   socket,
-   workshopId,
-   userId,
-   data,
-   io,
-}: SocketServerHandlerType<any>) => {
+                                        socket,
+                                        workshopId,
+                                        userId,
+                                        data,
+                                        io,
+                                     }: SocketServerHandlerType<WorkshopAddInput>) => {
+   if (!data) return;
    const workshop = await new PrismaClient().workshop.findUnique({
       where: {
          id: workshopId,
@@ -29,13 +22,16 @@ const HandleWorkshopUserAdd = async ({
    const millisecondsPassed = new Date().getTime() - (await getModuleStartTime(workshopId));
    const privacyLevel: WorkshopPrivacyLevel =
       workshop?.privacyLevel || 'PRIVATE';
-   let returnData: WorkshopSocketUserAdd = {
+   let returnData: WorkshopAddOutput = {
       userId: userId,
       id: uuidv4(),
       data: data.data,
-      dateTime: new Date(),
-      millisecondsInWorkshop: millisecondsPassed
+      createTime: new Date(),
+      type: data.type,
+      relevantForNextModule: data.relevantForNextModule,
+      timeInWorkshop: millisecondsPassed,
    };
+   console.log(returnData);
    await addModuleUserData(workshopId, returnData);
    if (privacyLevel === 'FULL_VISIBLE') {
       io.to(workshopId).emit(WorkshopSocketEvents.WorkshopUserAdd, returnData);
@@ -49,7 +45,5 @@ const HandleWorkshopUserAdd = async ({
       socket.emit(WorkshopSocketEvents.WorkshopUserAdd, returnData);
    }
 };
-
-export type { WorkshopSocketUserAdd };
 
 export default HandleWorkshopUserAdd;

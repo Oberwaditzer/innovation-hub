@@ -6,15 +6,15 @@ import { appWithTranslation } from 'next-i18next';
 import { UserProvider } from '@auth0/nextjs-auth0';
 
 function BestAppInTheWorld({ Component, pageProps }: AppProps) {
-   return (
-      <UserProvider>
-         <RecoilRoot>
-            <WorkshopContextProvider>
-               <Component {...pageProps} />
-            </WorkshopContextProvider>
-         </RecoilRoot>
-      </UserProvider>
-   );
+	return (
+		<UserProvider>
+			<RecoilRoot>
+				<WorkshopContextProvider>
+					<Component {...pageProps} />
+				</WorkshopContextProvider>
+			</RecoilRoot>
+		</UserProvider>
+	);
 }
 
 export default appWithTranslation(BestAppInTheWorld);

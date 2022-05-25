@@ -49,12 +49,12 @@ async function main() {
    });
 
    const leon2 = await prisma.user.upsert({
-      where: { email: 'technoobi@gmail.com' },
+      where: { email: 'leon@oberwaditzer.com' },
       update: {},
       create: {
          id: 'cl2ss9h9m00258eh5v6s25i60',
-         email: 'technoobi@gmail.com',
-         username: 'technoobi',
+         email: 'leon@oberwaditzer.com',
+         username: 'oberwaditzer',
          firstName: 'Leon 2',
          lastName: 'Oberwaditzer',
          profilePictureURL:
@@ -147,10 +147,10 @@ async function main() {
 
    await prisma.workshopTemplateStep.create({
       data: {
-         title: 'Brainstorming 2',
+         title: 'Voting',
          step: 2,
          durationSeconds: 300,
-         type: 'brainstorming',
+         type: 'voting',
          data: {},
          workshopTemplateId: workshopTemplate.id,
       },
@@ -168,6 +168,27 @@ async function main() {
             teams: {
                connect: {
                   id: designTeam.id,
+               },
+            },
+            steps: {
+               createMany: {
+                  data: [
+                     {
+                        step: 1,
+                        durationSeconds: 300,
+                        type: 'brainstorming',
+                        title: 'Brainstorming',
+                     },
+                     {
+                        step: 2,
+                        durationSeconds: 300,
+                        type: 'voting',
+                        title: 'Voting',
+                        configuration: {
+                           voteAmount: 3,
+                           maxSelect: 1
+                        }
+                     }],
                },
             },
             template: {

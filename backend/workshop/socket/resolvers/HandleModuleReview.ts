@@ -2,14 +2,14 @@ import { WorkshopSocketEvents } from '../../../../definitions/WorkshopSocketEven
 import { SocketServerHandlerType } from '../SockerServer';
 import { getModuleUserData, setModuleReview } from '../../RedisAdapter';
 import { PrismaClient } from '@prisma/client';
-import { WorkshopSocketUserAdd } from './HandleWorkshopUserAdd';
+import {WorkshopAddOutput} from "../../../../definitions/WorkshopDataTypes";
 
 type WorkshopSocketModuleReview = {
    inReview: boolean;
 };
 
 type WorkshopSocketModuleReviewFromServer = WorkshopSocketModuleReview & {
-   data: WorkshopSocketUserAdd[];
+   data: WorkshopAddOutput[];
 };
 
 const HandleModuleReview = async ({

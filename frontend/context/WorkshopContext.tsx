@@ -1,29 +1,26 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { WorkshopSocketEvents } from '../../definitions/WorkshopSocketEvents';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import {
+   modulePreviousUserData,
    moduleUserDataState,
    workshopModule,
    workshopState,
    workshopUsers,
 } from '../state/atoms/workshop';
-import { WorkshopInitialDataTypes } from '../../definitions/WorkshopDataTypes';
 import { JsonObject } from 'type-fest';
 import { useRouter } from 'next/router';
 import { WorkshopSocketInitialData } from '../../backend/workshop/socket/resolvers/HandleWorkshopConnect';
 import { WorkshopSocketModuleNext } from '../../backend/workshop/socket/resolvers/HandleModuleNext';
-import { WorkshopSocketUserAdd } from '../../backend/workshop/socket/resolvers/HandleWorkshopUserAdd';
 import { userState } from '../state/atoms/user';
-import { WorkshopSocketUserRemove } from '../../backend/workshop/socket/resolvers/HandleWorkshopUserRemove';
 import { timerState } from '../state/atoms/timer';
 import { useUser } from '@auth0/nextjs-auth0';
-import {
-   WorkshopSocketModuleReview,
-   WorkshopSocketModuleReviewFromServer,
-} from '../../backend/workshop/socket/resolvers/HandleModuleReview';
+import { WorkshopSocketModuleReviewFromServer } from '../../backend/workshop/socket/resolvers/HandleModuleReview';
 import { reviewModeState } from '../state/atoms/reviewMode';
 import { WorkshopSocketUserFinished } from '../../backend/workshop/socket/resolvers/HandleUserFinished';
+import { WorkshopAddOutput, WorkshopRemoveInput } from '../../definitions/WorkshopDataTypes';
+import { resultsModeState } from '../state/atoms/inResults';
 
 const useUpdateData = () => {
    const router = useRouter();
@@ -33,10 +30,12 @@ const useUpdateData = () => {
    const setWorkshopState = useSetRecoilState(workshopState);
    const setWorkshopModuleState = useSetRecoilState(workshopModule);
    const updateModuleUserInputState = useSetRecoilState(moduleUserDataState);
+   const setModulePreviousData = useSetRecoilState(modulePreviousUserData);
    const setUserState = useSetRecoilState(workshopUsers);
    const setPersonalUserState = useSetRecoilState(userState);
    const setTimerState = useSetRecoilState(timerState);
    const setReviewMode = useSetRecoilState(reviewModeState);
+   const setResultsMode = useSetRecoilState(resultsModeState);
 
    const setUserOnlineStatus = (user: string, isOnline: boolean) => {
       setUserState((users) =>
@@ -59,34 +58,48 @@ const useUpdateData = () => {
    const setWorkshopConnect = (data: WorkshopSocketInitialData) => {
       setWorkshopState(data);
       setUserState(data.users);
+      setPersonalUserState({
+         userId: (userAuth?.db_id as string) ?? '',
+         isFacilitator:
+            data.users.find((user) => user.id === userAuth?.db_id)
+               ?.isFacilitator ?? false,
+      });
       if (data.currentStep && data.moduleData) {
-         router.push(`/workshop/${router.query.workshop}/${data.currentStep}`);
+         if (data.isResults) {
+            setResultsMode(true);
+            router.push(`/workshop/${router.query.workshop}/results`);
+         } else {
+            setResultsMode(false);
+            router.push(`/workshop/${router.query.workshop}/${data.currentStep}`);
+         }
          updateModuleUserInputState((values) => [
             ...values,
-            ...data.moduleData!,
+            ...data.moduleData!.userInput,
          ]);
-         setWorkshopModuleState(data.template!.steps[0]);
+         setWorkshopModuleState(data.template);
          setReviewMode(data.isReview);
-         setPersonalUserState({
-            userId: (userAuth?.db_id as string) ?? '',
-            isFacilitator:
-               data.users.find((user) => user.id === userAuth?.db_id)
-                  ?.isFacilitator ?? false,
-         });
+         setModulePreviousData(data.moduleData.previousData);
       }
    };
 
    const setWorkshopModuleNext = (data: WorkshopSocketModuleNext) => {
-      router.push(`/workshop/${router.query.workshop}/${data.step}`);
-      setWorkshopModuleState(data);
+      if (data.isResults) {
+         router.push(`/workshop/${router.query.workshop}/results`);
+         setResultsMode(true);
+      } else {
+         router.push(`/workshop/${router.query.workshop}/${data.step.step}`);
+         setWorkshopModuleState(data.step);
+         setTimerState({
+            isActive: true,
+            timeLeft: data.step.durationSeconds,
+            initialTime: data.step.durationSeconds,
+         });
+         setReviewMode(false);
+      }
       updateModuleUserInputState([]);
-      setTimerState({
-         isActive: true,
-         timeLeft: data.durationSeconds,
-         initialTime: data.durationSeconds,
-      });
-      setUserState((users) => users!.map((u) => ({ ...u, isFinished: false })));
+      setModulePreviousData(data.previousData);
       setReviewMode(false);
+      setUserState((users) => users!.map((u) => ({ ...u, isFinished: false })));
    };
 
    const setWorkshopModuleReview = (
@@ -101,11 +114,11 @@ const useUpdateData = () => {
       setReviewMode(data.inReview);
    };
 
-   const setUpdateModuleUserAdd = (data: WorkshopSocketUserAdd) => {
+   const setUpdateModuleUserAdd = (data: WorkshopAddOutput) => {
       updateModuleUserInputState((values) => [...values, data]);
    };
 
-   const setUpdateModuleUserRemove = (data: WorkshopSocketUserRemove) => {
+   const setUpdateModuleUserRemove = (data: WorkshopRemoveInput) => {
       updateModuleUserInputState((values) =>
          values.filter((e) => e.id !== data.id),
       );
@@ -127,13 +140,12 @@ type WorkshopContextProviderProps = {
 };
 
 const WorkshopContextProvider = ({
-   children,
-}: WorkshopContextProviderProps) => {
+                                    children,
+                                 }: WorkshopContextProviderProps) => {
    const socket = useRef<Socket>(io({ autoConnect: false }));
    const [connected, setConnected] = useState(false);
    const user = useRecoilValue(userState);
    const { user: userAuth } = useUser();
-   console.log('userAuth', userAuth);
    const router = useRouter();
 
    const {
