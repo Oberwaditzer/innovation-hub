@@ -231,6 +231,11 @@ const WorkshopContextProvider = ({
       );
    };
 
+   const disconnect = () => {
+      socket.current?.disconnect();
+      router.push('/')
+   }
+
    const sendData = (type: WorkshopSocketEvents, data: JsonObject) => {
       if (!socket.current?.connected) {
          return;
@@ -245,6 +250,7 @@ const WorkshopContextProvider = ({
             connect: connect,
             connected: connected,
             sendData: sendData,
+            disconnect: disconnect
          }}
       >
          {children}
@@ -257,6 +263,7 @@ type WorkshopContextProps = {
    connect: () => void;
    connected: boolean;
    sendData: (type: WorkshopSocketEvents, data: JsonObject) => void;
+   disconnect: () => void;
 };
 
 const WorkshopContext = React.createContext<WorkshopContextProps>({
@@ -270,6 +277,9 @@ const WorkshopContext = React.createContext<WorkshopContextProps>({
       console.warn(
          'WorkshopContext.sendData was called, but was not found in Context',
       );
+   },
+   disconnect: () => {
+     console.warn('WorkshopContext.disconnect was called, but was not found in Context',)
    },
    connected: false,
 });

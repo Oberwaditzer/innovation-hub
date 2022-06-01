@@ -10,6 +10,14 @@ import {
    redirectToCorrectWorkshopPage,
    RedirectToCorrectWorkshopPageEnum,
 } from '../../../backend/Routing/WorkshopRouting';
+import {
+   WorkshopAddInputBrainstorming,
+   WorkshopAddOutput,
+   WorkshopAddOutputWithText,
+} from '../../../definitions/WorkshopDataTypes';
+import { TextField } from '../../../frontend/components/input/TextField';
+import { WorkshopSocketEvents } from '../../../definitions/WorkshopSocketEvents';
+import { BrainstormingResults } from '../../../frontend/components/workshop/modules/Brainstorming/Results';
 
 const WorkshopResult = () => {
    const context = useContext(WorkshopContext);
@@ -23,15 +31,42 @@ const WorkshopResult = () => {
    if (!previousData) {
       return null;
    }
+
    return (
       <div className={'h-screen w-screen flex flex-initial flex-row'}>
          <WorkshopBlocker />
          <WorkshopSidebar />
          <div className={'w-full h-full flex flex-col items-center p-10'}>
             <WorkshopTitle />
-            {JSON.stringify(previousData)}
+            <div className={'w-full h-full flex flex-initial flex-col items-center'}>
+               <p className={'font-semibold text-2xl mt-32 w-128 text-center'}>
+                  Your outcome
+               </p>
+               <p className={'mt-5 w-128 text-center'}>
+                 This is your output
+               </p>
+               <div className={'flex w-full mt-16 justify-center mb-16'}>
+                  <div className="w-1/2 h-[1px] bg-gray-300"/>
+               </div>
+               <div className={'w-1/2'}>
+                  {
+                     previousData.map((e, i) => <ResultElement key={i.toString()} item={e as WorkshopAddOutputWithText} />)
+                  }
+               </div>
+            </div>
          </div>
+      </div>
+   );
+};
 
+type ResultElementProps = {
+   item: WorkshopAddOutputWithText
+}
+
+const ResultElement = ({ item }: ResultElementProps) => {
+   return (
+      <div className={'w-full bg-blue-200 p-4 rounded-3xl mb-3'}>
+         {item.data.text}
       </div>
    );
 };
