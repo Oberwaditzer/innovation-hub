@@ -3,9 +3,11 @@ import classNames from 'classnames';
 import { useRecoilValue } from 'recoil';
 import { workshopUsers } from '../../../../state/atoms/workshop';
 import { Avatar } from '../../../avatars/Avatar';
+import { resultsModeState } from '../../../../state/atoms/inResults';
 
 const UserList = () => {
    const users = useRecoilValue(workshopUsers);
+   const isResult = useRecoilValue(resultsModeState);
    return (
       <div className={classNames('w-full')}>
          {users?.map((user, index) => (
@@ -23,7 +25,7 @@ const UserList = () => {
                <div className={'flex flex-col ml-3 justify-center'}>
                   <p>{`${user.firstName} ${user.lastName}`}</p>
                   <p className={'text-xs text-gray-500'}>
-                     {user.isFinished ? 'finished' : 'in progress'}
+                     {isResult ? 'Checking results' : user.isFinished ? 'finished' : 'in progress'}
                   </p>
                </div>
             </div>

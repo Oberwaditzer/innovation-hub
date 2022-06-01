@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { Button } from '../../button/Button';
 import { MdAdd, MdPersonOutline, MdRemove, MdTimer } from 'react-icons/md';
 import { SidebarTimer } from './timer/SidebarTimer';
-import { ModuleNextButton } from './moduleNext/ModuleNextButton';
+import { ModuleActionButton } from './ModuleAction/ModuleActionButton';
 import { UserList, UsersFinished } from './users/UserList';
 import { Collapsable } from './collapsable/Collapsable';
 
@@ -88,7 +88,7 @@ const WorkshopSidebarContent = () => {
                contentSmall={<UsersFinished />}
             />
          </div>
-         <ModuleNextButton />
+         <ModuleActionButton />
       </div>
    );
 };

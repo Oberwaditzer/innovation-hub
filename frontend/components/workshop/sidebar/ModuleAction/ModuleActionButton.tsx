@@ -12,7 +12,7 @@ import { WorkshopSocketUserFinished } from '../../../../../backend/workshop/sock
 import { isUserFinishedState } from '../../../../state/atoms/workshop';
 import { resultsModeState } from '../../../../state/atoms/inResults';
 
-const ModuleNextButton = () => {
+const ModuleActionButton = () => {
    const context = useContext(WorkshopContext);
    const expanded = useRecoilValue(workshopSidebarExpandedState);
    const isReviewMode = useRecoilValue(reviewModeState);
@@ -20,8 +20,21 @@ const ModuleNextButton = () => {
    const isUserFinished = useRecoilValue(isUserFinishedState);
    const isResults = useRecoilValue(resultsModeState);
 
+   const leaveWorkshop = () => {
+      context.disconnect();
+   }
+
    if (isResults) {
-      return null;
+      return (
+         <Button
+            colorName={'red'}
+            className={'p-2 w-10 h-10'}
+            onClick={leaveWorkshop}
+            rounded={true}
+         >
+            <MdClear className='h-6 w-6' aria-hidden='true' />
+         </Button>
+      );
    }
 
    const onClickFacilitator = () => {
@@ -67,4 +80,4 @@ const ModuleNextButton = () => {
    );
 };
 
-export { ModuleNextButton };
+export { ModuleActionButton };
