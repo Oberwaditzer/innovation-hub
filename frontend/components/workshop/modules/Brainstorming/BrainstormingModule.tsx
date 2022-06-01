@@ -23,12 +23,11 @@ const BrainstormingModule = () => {
                 {module.title}
             </p>
             <p className={'mt-5 w-128 text-center'}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labo.
+               {module.description}
             </p>
             {!isReview && (
                 <TextField
-                    className={'mt-16'}
+                    className={'mt-16 w-1/3'}
                     clearOnSubmit={true}
                     placeholder={'Type your thoughts'}
                     onSubmit={(userInput) => {

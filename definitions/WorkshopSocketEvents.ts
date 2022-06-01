@@ -6,7 +6,7 @@ export enum WorkshopSocketEvents {
 	WorkshopUserFinished = 'workshop:user:finished',
 	WorkshopUserAdd = 'workshop:user:add',
 	WorkshopUserRemove = 'workshop:user:remove',
-	WorkshopUserUpdate = 'workshop:user:update',
+	WorkshopUserChange = 'workshop:user:change',
 	WorkshopModuleNext = 'workshop:module:next',
 	WorkshopModuleReview = 'workshop:module:review',
 }
