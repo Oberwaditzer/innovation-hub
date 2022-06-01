@@ -11,7 +11,7 @@ const WorkshopTitle = () => {
    }
    return (
       <p className={'text-gray-300 text-xl  tracking-[0.75em]'}>
-         {`${module.title.toUpperCase()}${isReview ? ' (REVIEW)' : ''}`}
+         {`${module.type.toUpperCase()}${isReview ? ' (REVIEW)' : ''}`}
       </p>
    );
 };

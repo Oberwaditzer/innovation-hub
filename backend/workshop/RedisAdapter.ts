@@ -1,5 +1,5 @@
 import { createClient } from 'redis';
-import { WorkshopAddOutput } from '../../definitions/WorkshopDataTypes';
+import { WorkshopAddInput, WorkshopAddOutput } from '../../definitions/WorkshopDataTypes';
 
 const client = async() => {
    const client = createClient();
@@ -93,6 +93,21 @@ const removeModuleUserData = async (workshop: string, id: string) => {
    }
 };
 
+const changeModuleUserData = async (workshop: string, data: WorkshopAddOutput) => {
+   const currentData = await getModuleUserData(workshop);
+   if (!currentData) return;
+   const index = currentData.findIndex((e) => e.id === data.id);
+   console.log(data);
+   if (index >= 0) {
+      console.log(index);
+      const element = currentData[index];
+      console.log(element);
+      console.log(data);
+      element.data = data.data;
+      await (await client()).lSet(`${workshop}:module:data`, index, JSON.stringify(element));
+   }
+};
+
 const clearModuleUserData = async (workshop: string) => {
    return await (await client()).del(`${workshop}:module:data`);
 };
@@ -141,4 +156,5 @@ export {
    getModuleStartTime,
    getWorkshopInResults,
    setWorkshopInResults,
+   changeModuleUserData
 };

@@ -124,6 +124,17 @@ const useUpdateData = () => {
       );
    };
 
+   const setUpdateModuleUserChange = (data: WorkshopAddOutput) => {
+      updateModuleUserInputState((values) =>
+         values.map((e) => {
+            if(e.id === data.id){
+               return data;
+            }
+            return e;
+         }),
+      );
+   };
+
    return {
       setUserOnlineStatus,
       setWorkshopConnect,
@@ -132,6 +143,7 @@ const useUpdateData = () => {
       setUpdateModuleUserRemove,
       setWorkshopModuleReview,
       setUserFinished,
+      setUpdateModuleUserChange
    };
 };
 
@@ -156,6 +168,7 @@ const WorkshopContextProvider = ({
       setUpdateModuleUserRemove,
       setWorkshopModuleReview,
       setUserFinished,
+      setUpdateModuleUserChange
    } = useUpdateData();
 
    const connect = () => {
@@ -210,6 +223,11 @@ const WorkshopContextProvider = ({
       socket.current.on(
          WorkshopSocketEvents.WorkshopUserRemove,
          setUpdateModuleUserRemove,
+      );
+
+      socket.current.on(
+         WorkshopSocketEvents.WorkshopUserChange,
+         setUpdateModuleUserChange,
       );
    };
 

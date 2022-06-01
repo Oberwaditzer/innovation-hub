@@ -186,8 +186,15 @@ async function main() {
                         title: 'Voting',
                         configuration: {
                            voteAmount: 3,
-                           maxSelect: 1
-                        }
+                           maxSelect: 1,
+                        },
+                     },
+                     {
+                        step: 3,
+                        durationSeconds: 300,
+                        type: 'rephrasing',
+                        title: 'Ergebnisse umformulieren',
+                        description: 'Die Ergebnisse so umformulieren, dass wir Arbeitspakete definieren können.'
                      }],
                },
             },

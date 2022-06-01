@@ -23,7 +23,14 @@ type WorkshopAddInput = {
 	data: JsonObject;
 	relevantForNextModule: boolean;
 	type?: string | null;
+	id?: string | null
 };
+
+type WorkshopAddInputWithText = WorkshopAddInput & {
+	data: {
+		text: string
+	}
+}
 
 type WorkshopAddOutput = WorkshopAddInput & {
 	userId: string | null;
@@ -32,14 +39,19 @@ type WorkshopAddOutput = WorkshopAddInput & {
 	createTime: Date;
 };
 
-type WorkshopAddInputBrainstorming = WorkshopAddInput & {
-	data: {
-		text: string;
-	};
-};
+type WorkshopAddOutputWithText = WorkshopAddOutput & WorkshopAddInputWithText;
+
+type WorkshopAddInputBrainstorming = WorkshopAddInputWithText;
 
 type WorkshopAddOutputBrainstorming = WorkshopAddOutput &
 	WorkshopAddInputBrainstorming;
+
+type WorkshopAddInputRephrasing = WorkshopAddInputWithText & {
+	data: {
+		original: string,
+		dataId: string
+	}
+}
 
 type WorkshopAddInputVoting = WorkshopAddInput & {
 	type: 'voting' | 'select';
@@ -53,7 +65,7 @@ type WorkshopAddInputVotingTypeVote = WorkshopAddInputVoting & {
 };
 
 type WorkshopAddInputVotingTypeSelect = WorkshopAddInputVoting &
-	WorkshopAddInputBrainstorming & {
+	WorkshopAddInputWithText & {
 		data: {
 			id: string;
 		};
@@ -80,4 +92,7 @@ export type {
 	WorkshopAddOutputVotingTypeVote,
 	WorkshopAddOutputVotingTypeSelect,
 	WorkshopAddInputVotingTypeSelect,
+	WorkshopAddInputRephrasing,
+	WorkshopAddInputWithText,
+	WorkshopAddOutputWithText
 };
