@@ -1,13 +1,12 @@
 import React, { useContext } from 'react';
-import { MdKeyboardArrowDown, MdKeyboardArrowUp } from 'react-icons/md';
+import { KeyboardArrowDownOutlined, KeyboardArrowUpOutlined } from '@material-ui/icons';
 import classNames from 'classnames';
 import { WorkshopContext } from '../../../../context/WorkshopContext';
-import { moduleUserDataState, workshopModule } from '../../../../state/atoms/workshop';
+import { workshopModule } from '../../../../state/atoms/workshop';
 import { useRecoilValue } from 'recoil';
 import {
    WorkshopAddInputVotingTypeVote,
    WorkshopAddOutput,
-   WorkshopAddOutputVotingTypeVote,
    WorkshopRemoveInput,
 } from '../../../../../definitions/WorkshopDataTypes';
 import { WorkshopSocketEvents } from '../../../../../definitions/WorkshopSocketEvents';
@@ -65,14 +64,14 @@ const VotingCounter = ({ data }: VotingCounterProps) => {
 
    return (
       <div className={'flex flex-col items-center'}>
-         <MdKeyboardArrowUp
+         <KeyboardArrowUpOutlined
             onClick={() => handleClick(true)}
             className={classNames('w-10 h-10 ', {
                'cursor-pointer text-gray-400': canVoteUp,
                'text-gray-200 cursor-not-allowed': !canVoteUp,
             })} />
          <p className={'text-blue-300 text-3xl'}>{votedAmount}</p>
-         <MdKeyboardArrowDown
+         <KeyboardArrowDownOutlined
             onClick={() => handleClick(false)}
             className={classNames('w-10 h-10 ', {
                'cursor-pointer text-gray-400': canVoteDown,
