@@ -1,7 +1,7 @@
 import React, { ChangeEvent, KeyboardEventHandler, useState } from 'react';
 import { Button } from '../button/Button';
-import { MdAdd } from 'react-icons/md';
 import classNames from 'classnames';
+import { AddOutlined } from '@material-ui/icons';
 
 type TextFieldProps = {
    className?: string;
@@ -62,7 +62,7 @@ const TextField = ({ className, onChange, placeholder, onSubmit, clearOnSubmit, 
             {
                icon ?
                   icon :
-                  <MdAdd className={'w-5 h-5'} />
+                  <AddOutlined className={'w-5 h-5'} />
             }
          </Button>
       </div>

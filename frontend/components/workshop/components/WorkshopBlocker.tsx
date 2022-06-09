@@ -2,7 +2,6 @@ import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, useContext, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { timerState } from '../../../state/atoms/timer';
-import { MdWarning } from 'react-icons/md';
 import { Spinner } from '../../spinner/Spinner';
 import { userState } from '../../../state/atoms/user';
 import { reviewModeState } from '../../../state/atoms/reviewMode';

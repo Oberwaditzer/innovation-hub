@@ -1,18 +1,14 @@
 import React, { useContext, useState } from 'react';
-import { MdArrowForward, MdDone } from 'react-icons/md';
 import { TextField } from '../../../input/TextField';
 import { useRecoilValue } from 'recoil';
 import { modulePreviousUserData, moduleUserDataState } from '../../../../state/atoms/workshop';
 import { WorkshopContext } from '../../../../context/WorkshopContext';
-import {
-   WorkshopAddInputRephrasing,
-   WorkshopAddInputWithText, WorkshopAddOutput,
-   WorkshopAddOutputWithText,
-} from '../../../../../definitions/WorkshopDataTypes';
+import { WorkshopAddInputRephrasing, WorkshopAddOutputWithText } from '../../../../../definitions/WorkshopDataTypes';
 import { WorkshopSocketEvents } from '../../../../../definitions/WorkshopSocketEvents';
 import classNames from 'classnames';
 import { userState } from '../../../../state/atoms/user';
 import { reviewModeState } from '../../../../state/atoms/reviewMode';
+import { ArrowForwardOutlined, DoneOutlined } from '@material-ui/icons';
 
 const RephrasingList = () => {
    const previousData = useRecoilValue(modulePreviousUserData);
@@ -73,18 +69,19 @@ const RephrasingListElement = ({ previousElement, data, isFacilitator, isReview 
             {previousElement.data.text}
          </div>
          <div className={'mx-3'}>
-            <MdArrowForward className={'w-5 h-5 text-blue-500'} />
+            <ArrowForwardOutlined className={'w-5 h-5 text-blue-500'} />
          </div>
          <div className={'flex-1'}>
             {
                isFacilitator && !isReview &&
                <TextField buttonDisabled={isElementAdded && !hasElementChanged}
-                  onSubmit={sendData} textValue={textValue} onChange={setTextValue}
+                          onSubmit={sendData} textValue={textValue} onChange={setTextValue}
                           placeholder={previousElement.data.text} clearOnSubmit={true}
-                          icon={<MdDone className={'w-5 h-5'} />} />
+                          icon={<DoneOutlined className={'w-5 h-5'} />} />
             }
             {
-               !isFacilitator || isReview && <p>{isElementAdded?.data.text ?? previousElement.data.text as string ?? ''}</p>
+               !isFacilitator || isReview &&
+               <p>{isElementAdded?.data.text ?? previousElement.data.text as string ?? ''}</p>
             }
          </div>
       </div>

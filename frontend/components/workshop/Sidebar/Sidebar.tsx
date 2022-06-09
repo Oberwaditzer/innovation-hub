@@ -3,7 +3,13 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { workshopSidebarExpandedState } from '../../../state/atoms/workshopSidebar';
 import classNames from 'classnames';
 import { Button } from '../../button/Button';
-import { MdAdd, MdPersonOutline, MdRemove, MdTimer, MdPieChartOutlined } from 'react-icons/md';
+import {
+   AddOutlined,
+   PersonOutlineOutlined,
+   RemoveOutlined,
+   TimerOutlined,
+   PieChartOutlined,
+} from '@material-ui/icons';
 import { SidebarTimer } from './Timer/SidebarTimer';
 import { ModuleActionButton } from './ModuleAction/ModuleActionButton';
 import { UserList, UsersFinished } from './Users/UserList';
@@ -36,10 +42,10 @@ const WorkshopSidebar = () => {
                rounded={true}
             >
                {sidebarExpanded && (
-                  <MdRemove className="h-6 w-6" aria-hidden="true" />
+                  <RemoveOutlined className="h-6 w-6" aria-hidden="true" />
                )}
                {!sidebarExpanded && (
-                  <MdAdd className="h-6 w-6" aria-hidden="true" />
+                  <AddOutlined className="h-6 w-6" aria-hidden="true" />
                )}
             </Button>
             <WorkshopSidebarContent />
@@ -59,7 +65,7 @@ const WorkshopSidebarContent = () => {
             <WorkshopSidebarEntry
                showDivider={true}
                icon={
-                  <MdTimer
+                  <TimerOutlined
                      className={classNames('h-10 w-10 text-blue-600')}
                      aria-hidden="true"
                   />
@@ -75,7 +81,7 @@ const WorkshopSidebarContent = () => {
             <WorkshopSidebarEntry
                showDivider={true}
                icon={
-                  <MdPersonOutline
+                  <PersonOutlineOutlined
                      className={classNames('h-10 w-10 text-blue-600')}
                      aria-hidden="true"
                   />
@@ -91,7 +97,7 @@ const WorkshopSidebarContent = () => {
             <WorkshopSidebarEntry
                showDivider={true}
                icon={
-                  <MdPieChartOutlined
+                  <PieChartOutlined
                      className={classNames('h-10 w-10 text-blue-600')}
                      aria-hidden="true"
                   />

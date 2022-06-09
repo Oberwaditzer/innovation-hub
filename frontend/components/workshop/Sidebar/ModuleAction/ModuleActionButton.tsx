@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { MdArrowForward, MdDone, MdClear } from 'react-icons/md';
+import { ArrowForwardOutlined, ClearOutlined, DoneOutlined } from '@material-ui/icons';
 import { Button } from '../../../button/Button';
 import { WorkshopSocketEvents } from '../../../../../definitions/WorkshopSocketEvents';
 import { WorkshopContext } from '../../../../context/WorkshopContext';
@@ -32,7 +32,7 @@ const ModuleActionButton = () => {
             onClick={leaveWorkshop}
             rounded={true}
          >
-            <MdClear className='h-6 w-6' aria-hidden='true' />
+            <ClearOutlined className='h-6 w-6' aria-hidden='true' />
          </Button>
       );
    }
@@ -62,9 +62,9 @@ const ModuleActionButton = () => {
             rounded={true}
          >
             {isUserFinished ? (
-               <MdClear className='h-6 w-6' aria-hidden='true' />
+               <ClearOutlined className='h-6 w-6' aria-hidden='true' />
             ) : (
-               <MdDone className='h-6 w-6' aria-hidden='true' />
+               <DoneOutlined className='h-6 w-6' aria-hidden='true' />
             )}
          </Button>
       );
@@ -75,7 +75,7 @@ const ModuleActionButton = () => {
          onClick={onClickFacilitator}
          rounded={true}
       >
-         <MdArrowForward className='h-6 w-6' aria-hidden='true' />
+         <ArrowForwardOutlined className='h-6 w-6' aria-hidden='true' />
       </Button>
    );
 };
