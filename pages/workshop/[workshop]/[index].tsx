@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { WorkshopModuleDefinitions } from '../../../definitions/WorkshopModuleTypes';
-import { WorkshopSidebar } from '../../../frontend/components/workshop/sidebar/Sidebar';
+import { WorkshopSidebar } from '../../../frontend/components/workshop/Sidebar/Sidebar';
 import { WorkshopTitle } from '../../../frontend/components/workshop/components/Title';
 import { WorkshopContext } from '../../../frontend/context/WorkshopContext';
 import { useTimer } from '../../../frontend/hooks/useTimer';

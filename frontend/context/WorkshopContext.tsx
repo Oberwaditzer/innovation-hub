@@ -6,7 +6,7 @@ import {
    modulePreviousUserData,
    moduleUserDataState,
    workshopModule,
-   workshopState,
+   workshopState, workshopStep,
    workshopUsers,
 } from '../state/atoms/workshop';
 import { JsonObject } from 'type-fest';
@@ -28,7 +28,6 @@ const useUpdateData = () => {
    const { user: userAuth } = useUser();
 
    const setWorkshopState = useSetRecoilState(workshopState);
-   const setWorkshopModuleState = useSetRecoilState(workshopModule);
    const updateModuleUserInputState = useSetRecoilState(moduleUserDataState);
    const setModulePreviousData = useSetRecoilState(modulePreviousUserData);
    const setUserState = useSetRecoilState(workshopUsers);
@@ -36,6 +35,7 @@ const useUpdateData = () => {
    const setTimerState = useSetRecoilState(timerState);
    const setReviewMode = useSetRecoilState(reviewModeState);
    const setResultsMode = useSetRecoilState(resultsModeState);
+   const setWorkshopStepState = useSetRecoilState(workshopStep);
 
    const setUserOnlineStatus = (user: string, isOnline: boolean) => {
       setUserState((users) =>
@@ -76,7 +76,6 @@ const useUpdateData = () => {
             ...values,
             ...data.moduleData!.userInput,
          ]);
-         setWorkshopModuleState(data.template);
          setReviewMode(data.isReview);
          setModulePreviousData(data.moduleData.previousData);
       }
@@ -88,13 +87,13 @@ const useUpdateData = () => {
          setResultsMode(true);
       } else {
          router.push(`/workshop/${router.query.workshop}/${data.step.step}`);
-         setWorkshopModuleState(data.step);
          setTimerState({
             isActive: true,
             timeLeft: data.step.durationSeconds,
             initialTime: data.step.durationSeconds,
          });
          setReviewMode(false);
+         setWorkshopStepState(data.step.step);
       }
       updateModuleUserInputState([]);
       setModulePreviousData(data.previousData);

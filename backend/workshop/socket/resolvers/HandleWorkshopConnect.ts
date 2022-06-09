@@ -15,7 +15,7 @@ import {RemoveUserForPrivateWorkshop} from "../../../Mapper/RemoveUserForPrivate
 type WorkshopSocketInitialData = {
     name: string;
     users: WorkshopUser[];
-    template: WorkshopStep;
+    steps: WorkshopStep[];
     moduleData?: {
         userInput: WorkshopAddOutput[];
         previousData: WorkshopAddOutput[];
@@ -103,7 +103,7 @@ const HandleWorkshopConnect = async ({
             isFinished: finishedUsers.includes(user.userId) ?? false,
         })),
         name: workshop!.title,
-        template: workshop!.steps.find(e => e.step === currentStep)!,
+        steps: workshop!.steps,
         moduleData: currentStep ? {
             userInput: moduleData,
             previousData: RemoveUserForPrivateWorkshop(previousData, workshop!.privacyLevel)

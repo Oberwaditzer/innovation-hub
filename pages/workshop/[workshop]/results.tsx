@@ -4,7 +4,7 @@ import { useRecoilValue } from 'recoil';
 import { modulePreviousUserData, workshopModule } from '../../../frontend/state/atoms/workshop';
 import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
 import { WorkshopBlocker } from '../../../frontend/components/workshop/components/WorkshopBlocker';
-import { WorkshopSidebar } from '../../../frontend/components/workshop/sidebar/Sidebar';
+import { WorkshopSidebar } from '../../../frontend/components/workshop/Sidebar/Sidebar';
 import { WorkshopTitle } from '../../../frontend/components/workshop/components/Title';
 import {
    redirectToCorrectWorkshopPage,

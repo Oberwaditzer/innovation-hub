@@ -16,6 +16,7 @@ const UserList = () => {
                className={classNames(
                   'w-full my-3 bg-blue-200 p-3 rounded-2xl flex flex-row',
                   {
+                     'bg-white': user.isOnline && !user.isFinished,
                      'bg-green-200': user.isFinished,
                      'bg-gray-200': !user.isOnline,
                   },

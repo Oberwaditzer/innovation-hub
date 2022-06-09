@@ -2,8 +2,9 @@ import { atom, selector } from 'recoil';
 import { WorkshopAddOutput, WorkshopInitialDataTypes, WorkshopUser } from '../../../definitions/WorkshopDataTypes';
 import { WorkshopStep } from '@prisma/client';
 import { userState } from './user';
+import { WorkshopSocketInitialData } from '../../../backend/workshop/socket/resolvers/HandleWorkshopConnect';
 
-const workshopState = atom<WorkshopInitialDataTypes | null>({
+const workshopState = atom<WorkshopSocketInitialData | null>({
    key: 'workshop',
    default: null,
 });
@@ -38,10 +39,38 @@ const isUserFinishedState = selector({
    },
 });
 
-const workshopModule = atom<WorkshopStep | null>({
+const workshopModule = selector<WorkshopStep | null>({
    key: 'workshop/module',
-   default: null,
+   get: ({ get }) => {
+      const workshop = get(workshopState);
+      return workshop?.steps.find(e => e.step === workshop.currentStep) ?? null;
+   },
 });
+
+const workshopStep = selector<number | null>({
+   key: 'workshop/step',
+   get: ({ get }) => {
+      const workshop = get(workshopState);
+      return workshop?.currentStep ?? null;
+   },
+   set: ({ get, set }, newValue) => {
+      const workshop = get(workshopState);
+      if (workshop) {
+         set(workshopState, {
+            ...workshop,
+            currentStep: newValue as number,
+         });
+      }
+   },
+});
+
+const workshopSteps = selector<WorkshopStep[] | null>({
+   key: 'workshop/steps',
+   get: ({get}) => {
+      const workshop = get(workshopState);
+      return workshop?.steps ?? null;
+   }
+})
 
 const moduleUserDataState = atom<WorkshopAddOutput[]>({
    key: 'module/data',
@@ -61,4 +90,6 @@ export {
    moduleUserDataState,
    isUserFinishedState,
    modulePreviousUserData,
+   workshopStep,
+   workshopSteps
 };
