@@ -3,11 +3,12 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { workshopSidebarExpandedState } from '../../../state/atoms/workshopSidebar';
 import classNames from 'classnames';
 import { Button } from '../../button/Button';
-import { MdAdd, MdPersonOutline, MdRemove, MdTimer } from 'react-icons/md';
-import { SidebarTimer } from './timer/SidebarTimer';
+import { MdAdd, MdPersonOutline, MdRemove, MdTimer, MdPieChartOutlined } from 'react-icons/md';
+import { SidebarTimer } from './Timer/SidebarTimer';
 import { ModuleActionButton } from './ModuleAction/ModuleActionButton';
-import { UserList, UsersFinished } from './users/UserList';
+import { UserList, UsersFinished } from './Users/UserList';
 import { Collapsable } from './collapsable/Collapsable';
+import { ProgressStepper } from './ProgessStepper/ProgressStepper';
 
 const WorkshopSidebar = () => {
    const [sidebarExpanded, setSidebarExpanded] = useRecoilState(
@@ -85,6 +86,22 @@ const WorkshopSidebarContent = () => {
                   </>
                }
                contentBig={<UserList />}
+               contentSmall={<UsersFinished />}
+            />
+            <WorkshopSidebarEntry
+               showDivider={true}
+               icon={
+                  <MdPieChartOutlined
+                     className={classNames('h-10 w-10 text-blue-600')}
+                     aria-hidden="true"
+                  />
+               }
+               iconSide={
+                  <>
+                     <p className={'text-l ml-4'}>Progress</p>
+                  </>
+               }
+               contentBig={<ProgressStepper />}
                contentSmall={<UsersFinished />}
             />
          </div>

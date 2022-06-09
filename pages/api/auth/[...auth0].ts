@@ -1,13 +1,11 @@
-import { handleAuth, handleCallback } from '@auth0/nextjs-auth0';
+import { handleAuth, handleCallback, handleLogin } from '@auth0/nextjs-auth0';
 import { PrismaClient } from '@prisma/client';
 
 export default handleAuth({
    async callback(req, res) {
-      console.log(req);
       try {
          await handleCallback(req, res, {
             async afterCallback(req, res, session, state) {
-               console.log('in callback')
                if (session.user) {
                   const insertData = {
                      email: session.user.email,
@@ -25,7 +23,6 @@ export default handleAuth({
                   });
                   session.user.db_id = user.id;
                }
-               console.log('return session')
                return session;
             },
          });
