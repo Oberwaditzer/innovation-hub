@@ -7,7 +7,7 @@ import {
    getWorkshopStep,
    incrementWorkshopStep,
    setModuleReview,
-    setWorkshopInResults,
+   setWorkshopInResults,
 } from '../../RedisAdapter';
 import { PrismaClient, WorkshopStep, WorkshopStepData } from '@prisma/client';
 import { WorkshopAddOutput } from '../../../../definitions/WorkshopDataTypes';
@@ -50,13 +50,24 @@ const HandleModuleNext = async ({
    });
    if (!workshop) return;
 
+   if (workshop.status !== 'STARTED') {
+      await prisma.workshop.update({
+         where: {
+            id: workshopId,
+         },
+         data: {
+            status: 'STARTED',
+         },
+      });
+   }
+
    let stepData: WorkshopAddOutput[] = [];
 
    // ToDo Set the correct Step Information
    if (currentStep !== 1) {
       const userData = await getModuleUserData(workshopId);
 
-      const test = await prisma.workshop.update({
+      const update = await prisma.workshop.update({
          where: {
             id: workshopId,
          },
@@ -96,7 +107,7 @@ const HandleModuleNext = async ({
             },
          },
       });
-      stepData = test.steps.find(e => e.step === currentStep! - 1)!.data.map(e => ({
+      stepData = update.steps.find(e => e.step === currentStep! - 1)!.data.map(e => ({
          ...e,
          data: e.data as JsonObject,
       }));
@@ -114,6 +125,14 @@ const HandleModuleNext = async ({
 
    if (isLast) {
       await setWorkshopInResults(workshopId, true);
+      await prisma.workshop.update({
+         where: {
+            id: workshopId,
+         },
+         data: {
+            status: 'FINISHED',
+         },
+      });
    }
 
    const sendData: WorkshopSocketModuleNext = {

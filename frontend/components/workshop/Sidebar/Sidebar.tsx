@@ -22,6 +22,12 @@ const WorkshopSidebar = () => {
       workshopSidebarExpandedState,
    );
 
+
+   const isResult = useRecoilValue(resultsModeState);
+   if(isResult) {
+      return null
+   }
+
    const toggle = () => {
       setSidebarExpanded(!sidebarExpanded);
    };
@@ -56,7 +62,6 @@ const WorkshopSidebar = () => {
 };
 
 const WorkshopSidebarContent = () => {
-   const isResult = useRecoilValue(resultsModeState);
    return (
       <div
          className={
@@ -64,7 +69,7 @@ const WorkshopSidebarContent = () => {
          }
       >
          <div className={'flex flex-auto flex-col'}>
-            {!isResult && <WorkshopSidebarEntry
+            <WorkshopSidebarEntry
                showDivider={true}
                icon={
                   <TimerOutlined
@@ -79,7 +84,7 @@ const WorkshopSidebarContent = () => {
                   </>
                }
                contentSmall={<SidebarTimer isSmall={true} />}
-            />}
+            />
             <WorkshopSidebarEntry
                showDivider={true}
                icon={
