@@ -1,15 +1,15 @@
 import { createClient } from 'redis';
 import { WorkshopAddInput, WorkshopAddOutput } from '../../definitions/WorkshopDataTypes';
+import { WorkshopTimeEntry } from './utils/WorkshopTimeHandling';
 
-const client = async() => {
+const client = async () => {
    const client = createClient();
 
    client.on('error', (err) => console.log('Redis Client Error', err));
 
    await client.connect();
    return client;
-}
-
+};
 
 
 const addUserOnline = async (workshop: string, userId: string) => {
@@ -97,12 +97,8 @@ const changeModuleUserData = async (workshop: string, data: WorkshopAddOutput) =
    const currentData = await getModuleUserData(workshop);
    if (!currentData) return;
    const index = currentData.findIndex((e) => e.id === data.id);
-   console.log(data);
    if (index >= 0) {
-      console.log(index);
       const element = currentData[index];
-      console.log(element);
-      console.log(data);
       element.data = data.data;
       await (await client()).lSet(`${workshop}:module:data`, index, JSON.stringify(element));
    }
@@ -112,8 +108,21 @@ const clearModuleUserData = async (workshop: string) => {
    return await (await client()).del(`${workshop}:module:data`);
 };
 
-const setModuleStartTime = async (workshop: string, startTime: number) => {
-   await (await client()).set(`${workshop}:module:start`, startTime);
+const getModuleTimes = async (workshop: string) => {
+   const data = await (await client()).lRange(`${workshop}:module:times`, 0, -1);
+   if (data) {
+      try {
+         return data
+            .map((e) => JSON.parse(e) as WorkshopTimeEntry)
+            .reverse();
+      } catch (_) {
+      }
+   }
+   return null;
+};
+
+const appendModuleTimes = async (workshop: string, data: WorkshopTimeEntry) => {
+   await (await client()).lPush(`${workshop}:module:times`, JSON.stringify(data));
 };
 
 const getModuleStartTime = async (workshop: string) => {
@@ -152,9 +161,10 @@ export {
    removeUserFinished,
    getUsersFinished,
    clearUsersFinished,
-   setModuleStartTime,
+   appendModuleTimes,
+   getModuleTimes,
    getModuleStartTime,
    getWorkshopInResults,
    setWorkshopInResults,
-   changeModuleUserData
+   changeModuleUserData,
 };

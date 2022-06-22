@@ -9,4 +9,5 @@ export enum WorkshopSocketEvents {
 	WorkshopUserChange = 'workshop:user:change',
 	WorkshopModuleNext = 'workshop:module:next',
 	WorkshopModuleReview = 'workshop:module:review',
+	WorkshopModuleTimeIncrease = 'workshop:module:time:increase',
 }

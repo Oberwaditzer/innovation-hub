@@ -15,6 +15,7 @@ import { ModuleActionButton } from './ModuleAction/ModuleActionButton';
 import { UserList, UsersFinished } from './Users/UserList';
 import { Collapsable } from './collapsable/Collapsable';
 import { ProgressStepper } from './ProgessStepper/ProgressStepper';
+import { resultsModeState } from '../../../state/atoms/inResults';
 
 const WorkshopSidebar = () => {
    const [sidebarExpanded, setSidebarExpanded] = useRecoilState(
@@ -42,10 +43,10 @@ const WorkshopSidebar = () => {
                rounded={true}
             >
                {sidebarExpanded && (
-                  <RemoveOutlined className="h-6 w-6" aria-hidden="true" />
+                  <RemoveOutlined className='h-6 w-6' aria-hidden='true' />
                )}
                {!sidebarExpanded && (
-                  <AddOutlined className="h-6 w-6" aria-hidden="true" />
+                  <AddOutlined className='h-6 w-6' aria-hidden='true' />
                )}
             </Button>
             <WorkshopSidebarContent />
@@ -55,6 +56,7 @@ const WorkshopSidebar = () => {
 };
 
 const WorkshopSidebarContent = () => {
+   const isResult = useRecoilValue(resultsModeState);
    return (
       <div
          className={
@@ -62,12 +64,12 @@ const WorkshopSidebarContent = () => {
          }
       >
          <div className={'flex flex-auto flex-col'}>
-            <WorkshopSidebarEntry
+            {!isResult && <WorkshopSidebarEntry
                showDivider={true}
                icon={
                   <TimerOutlined
                      className={classNames('h-10 w-10 text-blue-600')}
-                     aria-hidden="true"
+                     aria-hidden='true'
                   />
                }
                iconSide={
@@ -77,13 +79,13 @@ const WorkshopSidebarContent = () => {
                   </>
                }
                contentSmall={<SidebarTimer isSmall={true} />}
-            />
+            />}
             <WorkshopSidebarEntry
                showDivider={true}
                icon={
                   <PersonOutlineOutlined
                      className={classNames('h-10 w-10 text-blue-600')}
-                     aria-hidden="true"
+                     aria-hidden='true'
                   />
                }
                iconSide={
@@ -99,7 +101,7 @@ const WorkshopSidebarContent = () => {
                icon={
                   <PieChartOutlined
                      className={classNames('h-10 w-10 text-blue-600')}
-                     aria-hidden="true"
+                     aria-hidden='true'
                   />
                }
                iconSide={
@@ -125,12 +127,12 @@ type WorkshopSidebarEntryProps = {
 };
 
 const WorkshopSidebarEntry = ({
-   icon,
-   iconSide,
-   contentSmall,
-   contentBig,
-   showDivider = true,
-}: WorkshopSidebarEntryProps) => {
+                                 icon,
+                                 iconSide,
+                                 contentSmall,
+                                 contentBig,
+                                 showDivider = true,
+                              }: WorkshopSidebarEntryProps) => {
    const sidebarExpanded = useRecoilValue(workshopSidebarExpandedState);
    return (
       <>

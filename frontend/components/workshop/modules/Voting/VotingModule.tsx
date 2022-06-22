@@ -36,7 +36,7 @@ const VotingModule = () => {
             Wähle deine Favouriten
          </p>
          <VotingDescription />
-         <div className={'w-1/2 mt-10'}>
+         <div className={'w-1/2 mt-10 overflow-y-scroll p-4'}>
             {sortedData.map((e, i) => <VotingEntry key={i.toString()} data={e as WorkshopAddOutputBrainstorming} />)}
          </div>
       </div>

@@ -16,7 +16,7 @@ const BrainstormingResults = () => {
    return (
       <Masonry
          breakpointCols={3}
-         className={'flex w-3/4 overflow-scroll pt-3'}
+         className={'flex w-3/4 overflow-scroll pt-3 justify-center'}
          columnClassName={'w-auto pl-5 pr-5'}
       >
          {moduleUserData.map((e) => (
