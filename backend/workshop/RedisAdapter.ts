@@ -121,6 +121,10 @@ const getModuleTimes = async (workshop: string) => {
    return null;
 };
 
+const clearModuleTimes = async (workshop: string) => {
+   return await (await client()).del(`${workshop}:module:times`);
+};
+
 const appendModuleTimes = async (workshop: string, data: WorkshopTimeEntry) => {
    await (await client()).lPush(`${workshop}:module:times`, JSON.stringify(data));
 };
@@ -145,6 +149,13 @@ const getWorkshopInResults = async (workshop: string) => {
    return res === 'true';
 };
 
+const clearWorkshop = async (workshop: string) => {
+   const keys = await (await client()).keys(`${workshop}:*`)
+   for (let i = 0; i < keys.length; i++) {
+      await (await client()).del(keys[i]);
+   }
+}
+
 export {
    addUserOnline,
    removeModuleUserData,
@@ -167,4 +178,6 @@ export {
    getWorkshopInResults,
    setWorkshopInResults,
    changeModuleUserData,
+   clearModuleTimes,
+   clearWorkshop
 };

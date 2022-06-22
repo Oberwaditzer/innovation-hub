@@ -1,5 +1,4 @@
-import { appendModuleTimes, getModuleTimes } from '../RedisAdapter';
-import { JsonObject } from 'type-fest';
+import { appendModuleTimes, clearModuleTimes, getModuleTimes } from '../RedisAdapter';
 
 type WorkshopTimeEntry = {
    timeStamp: number,
@@ -11,6 +10,7 @@ type WorkshopTimeEntry = {
 }
 
 const SetStartModule = async (workshopId: string) => {
+   await clearModuleTimes(workshopId);
    await appendModuleTimes(workshopId, {
       timeStamp: new Date().getTime(),
       action: 'start',
