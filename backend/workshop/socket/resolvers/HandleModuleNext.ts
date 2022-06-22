@@ -7,11 +7,12 @@ import {
    getWorkshopStep,
    incrementWorkshopStep,
    setModuleReview,
-   setModuleStartTime, setWorkshopInResults,
+    setWorkshopInResults,
 } from '../../RedisAdapter';
 import { PrismaClient, WorkshopStep, WorkshopStepData } from '@prisma/client';
 import { WorkshopAddOutput } from '../../../../definitions/WorkshopDataTypes';
 import { JsonObject } from 'type-fest';
+import { SetStartModule } from '../../utils/WorkshopTimeHandling';
 
 type WorkshopSocketModuleNext = {
    step: WorkshopStep,
@@ -104,14 +105,14 @@ const HandleModuleNext = async ({
    await incrementWorkshopStep(workshopId);
    await setModuleReview(workshopId, false);
    await clearUsersFinished(workshopId);
-   await setModuleStartTime(workshopId, new Date().getTime());
    await clearModuleUserData(workshopId);
+   await SetStartModule(workshopId);
 
    currentStep = await getWorkshopStep(workshopId);
 
    const isLast = workshop.steps.find(e => e.step === currentStep) == null;
 
-   if(isLast) {
+   if (isLast) {
       await setWorkshopInResults(workshopId, true);
    }
 

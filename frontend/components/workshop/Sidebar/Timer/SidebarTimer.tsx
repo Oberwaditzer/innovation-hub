@@ -3,6 +3,7 @@ import { useTimer } from '../../../../hooks/useTimer';
 import { useRecoilValue } from 'recoil';
 import { timeLeftState } from '../../../../state/atoms/timer';
 import classNames from 'classnames';
+import { resultsModeState } from '../../../../state/atoms/inResults';
 
 type SidebarTimerProps = {
    isSmall?: boolean;

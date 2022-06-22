@@ -21,6 +21,7 @@ import { reviewModeState } from '../state/atoms/reviewMode';
 import { WorkshopSocketUserFinished } from '../../backend/workshop/socket/resolvers/HandleUserFinished';
 import { WorkshopAddOutput, WorkshopRemoveInput } from '../../definitions/WorkshopDataTypes';
 import { resultsModeState } from '../state/atoms/inResults';
+import { WorkshopSocketIncreaseTimeFromServer } from '../../backend/workshop/socket/resolvers/HandleIncreaseTime';
 
 const useUpdateData = () => {
    const router = useRouter();
@@ -78,6 +79,11 @@ const useUpdateData = () => {
          ]);
          setReviewMode(data.isReview);
          setModulePreviousData(data.moduleData.previousData);
+         setTimerState({
+            isActive: !data.isReview,
+            timeLeft: data.timeLeft,
+            initialTime: data.timeLeft,
+         });
       }
    };
 
@@ -126,12 +132,20 @@ const useUpdateData = () => {
    const setUpdateModuleUserChange = (data: WorkshopAddOutput) => {
       updateModuleUserInputState((values) =>
          values.map((e) => {
-            if(e.id === data.id){
+            if (e.id === data.id) {
                return data;
             }
             return e;
          }),
       );
+   };
+
+   const setIncreaseTime = (data: WorkshopSocketIncreaseTimeFromServer) => {
+      setTimerState((value) => ({
+         ...value,
+         timeLeft: data.secondsToIncrease,
+         isActive: true,
+      }));
    };
 
    return {
@@ -142,7 +156,8 @@ const useUpdateData = () => {
       setUpdateModuleUserRemove,
       setWorkshopModuleReview,
       setUserFinished,
-      setUpdateModuleUserChange
+      setUpdateModuleUserChange,
+      setIncreaseTime,
    };
 };
 
@@ -167,7 +182,8 @@ const WorkshopContextProvider = ({
       setUpdateModuleUserRemove,
       setWorkshopModuleReview,
       setUserFinished,
-      setUpdateModuleUserChange
+      setUpdateModuleUserChange,
+      setIncreaseTime,
    } = useUpdateData();
 
    const connect = () => {
@@ -228,12 +244,17 @@ const WorkshopContextProvider = ({
          WorkshopSocketEvents.WorkshopUserChange,
          setUpdateModuleUserChange,
       );
+
+      socket.current.on(
+         WorkshopSocketEvents.WorkshopModuleTimeIncrease,
+         setIncreaseTime,
+      );
    };
 
    const disconnect = () => {
       socket.current?.disconnect();
-      router.push('/')
-   }
+      router.push('/');
+   };
 
    const sendData = (type: WorkshopSocketEvents, data: JsonObject) => {
       if (!socket.current?.connected) {
@@ -249,7 +270,7 @@ const WorkshopContextProvider = ({
             connect: connect,
             connected: connected,
             sendData: sendData,
-            disconnect: disconnect
+            disconnect: disconnect,
          }}
       >
          {children}
@@ -278,7 +299,7 @@ const WorkshopContext = React.createContext<WorkshopContextProps>({
       );
    },
    disconnect: () => {
-     console.warn('WorkshopContext.disconnect was called, but was not found in Context',)
+      console.warn('WorkshopContext.disconnect was called, but was not found in Context');
    },
    connected: false,
 });

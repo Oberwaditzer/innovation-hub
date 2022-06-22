@@ -11,6 +11,7 @@ import HandleWorkshopUserRemove from './resolvers/HandleWorkshopUserRemove';
 import HandleModuleReview from './resolvers/HandleModuleReview';
 import HandleUserFinished from './resolvers/HandleUserFinished';
 import HandleWorkshopUserChange from './resolvers/HandleWorkshopUserChange';
+import HandleIncreaseTime from './resolvers/HandleIncreaseTime';
 
 const OnConnection = async (socket: socketio.Socket, io: socketio.Server) => {
    const workshopId = socket.handshake.auth.workshopId;
@@ -47,6 +48,10 @@ const OnConnection = async (socket: socketio.Socket, io: socketio.Server) => {
 
    socket.on(WorkshopSocketEvents.WorkshopUserFinished, async (data) =>
       HandleUserFinished({ socket, workshopId, userId, io, data }),
+   );
+
+   socket.on(WorkshopSocketEvents.WorkshopModuleTimeIncrease, async (data) =>
+      HandleIncreaseTime({ socket, workshopId, userId, io, data }),
    );
 
    socket.on('disconnect', async (data) =>

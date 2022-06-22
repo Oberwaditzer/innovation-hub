@@ -90,6 +90,7 @@ model WorkshopStep {
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   durationSeconds Int
+  addedSeconds       Int               @default(0)
   step            Int
   configuration   Json               @default("{}")
   data            WorkshopStepData[]
